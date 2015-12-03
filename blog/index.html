@@ -61,7 +61,6 @@
     <div class="wrap">
       <div class="masthead">
         <div class="container">
-          <label for="sidebar-checkbox" class="sidebar-toggle"></label>
 
           <h3 class="masthead-title">
             <a href="/" title="Home">Tomasz Heimowski</a>
@@ -73,44 +72,53 @@
       <div class="container content">
         
 
+<div class="page">
+  <h1 class="page-title">TITLE</h1>
+  
+
 <div class="posts">
-  {% for post in paginator.posts %}
-  <div class="post">
-    <h1 class="post-title">
-      <a href="{{ post.url }}">
-        {{ post.title }}
-      </a>
-    </h1>
-
-    <span class="post-date">{{ post.date | date_to_string }}</span>
-
-    {{ post.content }}
-  </div>
-  {% endfor %}
+        <div class="post">
+            <h1 class="post-title">
+                <a href="/blog">Hellow</a>
+            </h1>
+    
+            <span class="post-date">2015.12.03</span>
+        
+            <a href="blog/2013/11-09-getting-started/index.html">Getting Started</a>
+        </div>
+        <div class="post">
+            <h1 class="post-title">
+                <a href="/blog">Hellow</a>
+            </h1>
+    
+            <span class="post-date">2015.12.03</span>
+        
+            <a href="blog/2013/11-08-hello-fsblog/index.html">Hello, FsBlog!</a>
+        </div>
 </div>
-
-<div class="pagination">
-  {% if paginator.next_page %}
-    <a class="pagination-item older" href="/page{{paginator.next_page}}">Older</a>
-  {% else %}
-    <span class="pagination-item older">Older</span>
-  {% endif %}
-  {% if paginator.previous_page %}
-    {% if paginator.page == 2 %}
-      <a class="pagination-item newer" href="/">Newer</a>
-    {% else %}
-      <a class="pagination-item newer" href="/page{{paginator.previous_page}}">Newer</a>
-    {% endif %}
-  {% else %}
-    <span class="pagination-item newer">Newer</span>
-  {% endif %}
 </div>
-
-    <a href="blog/2013/11-09-getting-started/index.html">Getting Started</a>
-    <a href="blog/2013/11-08-hello-fsblog/index.html">Hello, FsBlog!</a>
-
       </div>
     </div>
+
+    <label for="sidebar-checkbox" class="sidebar-toggle"></label>
+
+    <script>
+      (function(document) {
+        var toggle = document.querySelector('.sidebar-toggle');
+        var sidebar = document.querySelector('#sidebar');
+        var checkbox = document.querySelector('#sidebar-checkbox');
+
+        document.addEventListener('click', function(e) {
+          var target = e.target;
+
+          if(!checkbox.checked ||
+             sidebar.contains(target) ||
+             (target === checkbox || target === toggle)) return;
+
+          checkbox.checked = false;
+        }, false);
+      })(document);
+    </script>
 
   </body>
 </html>
