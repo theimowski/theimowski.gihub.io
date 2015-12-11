@@ -5,6 +5,18 @@
     <description>FsBlog aims to be a blog-aware static site generator, mostly built in F#. But don't worry,  you won't even need to know any F# to get up and running. So long as you are comfortable  using a command line or terminal, and have a degree of familiarity with Markdown and Razor  syntax - you're good to go!
 </description>
     <item>
+      <title>Property-based testing XSLT</title>
+      <guid>http://theimowski.com//blog/2015/12-21-property-based-testing-xslt</guid>
+      <link>http://theimowski.com//blog/2015/12-21-property-based-testing-xslt/index.html</link>
+      <pubDate>Mon, 21 Dec 2015 06:11:55 GMT</pubDate>
+      <description>&lt;p&gt;Property-based testing is a wonderful tool to verify correctness of your programs. 
+However, some people struggle with finding a valid case to use the technique.
+In this entry, I'll present a rather &lt;strong&gt;exotic example&lt;/strong&gt; of applying property-based testing to check results of running XSL transformations.&lt;/p&gt;
+
+
+</description>
+    </item>
+    <item>
       <title>Getting Started</title>
       <guid>http://theimowski.com//blog/2013/11-09-getting-started</guid>
       <link>http://theimowski.com//blog/2013/11-09-getting-started/index.html</link>
