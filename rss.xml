@@ -10,8 +10,8 @@
       <link>http://theimowski.com//blog/2015/12-21-property-based-testing-xslt/index.html</link>
       <pubDate>Mon, 21 Dec 2015 06:11:55 GMT</pubDate>
       <description>&lt;p&gt;Property-based testing is a wonderful tool to verify correctness of your programs. 
-However, some people struggle with finding a valid case to use the technique.
-In this entry, I'll present a rather &lt;strong&gt;exotic example&lt;/strong&gt; of applying property-based testing to check results of running XSL transformations.&lt;/p&gt;
+However, some people struggle with finding reasonable cases to use the technique.
+In this entry, I'll try to prove that property-based testing can be used in every-day coding by showing a rather &lt;strong&gt;exotic example&lt;/strong&gt; of applying property-based testing to check results of XSL transformations.&lt;/p&gt;
 
 
 </description>

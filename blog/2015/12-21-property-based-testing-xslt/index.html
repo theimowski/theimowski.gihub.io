@@ -100,8 +100,8 @@
   <h1 class="post-title">Property-based testing XSLT</h1>
   
 <p>Property-based testing is a wonderful tool to verify correctness of your programs. 
-However, some people struggle with finding a valid case to use the technique.
-In this entry, I'll present a rather <strong>exotic example</strong> of applying property-based testing to check results of running XSL transformations.</p>
+However, some people struggle with finding reasonable cases to use the technique.
+In this entry, I'll try to prove that property-based testing can be used in every-day coding by showing a rather <strong>exotic example</strong> of applying property-based testing to check results of XSL transformations.</p>
 
 <!--more-->
 
@@ -111,8 +111,6 @@ In this entry, I'll present a rather <strong>exotic example</strong> of applying
 Big thanks go to <a href="https://twitter.com/sergey_tihon">Sergey Tihon</a> for organizing such a great initiative.
 Make sure to go check out rest of posts as well.</p>
 
-<!-- mention suave in japanese -->
-
 </div>
 
 <p>I've been constantly postponing creation of my own blog.
@@ -121,12 +119,28 @@ The <a href="https://sergeytihon.wordpress.com/tag/fsadvent/">F# Advent</a> even
 This is my first blog post ever, so chances are it's not gonna be the best F# article you've ever read.
 Anyway bear with me - I think I've got something interesting to share.</p>
 
-<p>My job is to develop and maintain a Content Management System (CMS). 
-The company I work for is a big corporation and a big corporation often equals <strong>enterprise</strong> software, that's why we deal <strong>a lot</strong> with the programmers' (especially Java) beloved format, XML.</p>
+<p>My job is to develop and maintain a <strong>Content Management System</strong> (CMS). 
+The company I work for is a big corporation and because big corporation often equals <strong>enterprise</strong> software, we deal <strong>a lot</strong> with the programmers' (especially Java) beloved enterprise format, namely XML.
+We store all the documents in the XML format, conforming to the <strong><a href="http://dita.xml.org/">DITA XML standard</a></strong> (with slight customizations).</p>
 
-<p>Crucial part of this system is its publishing capability.</p>
+<p>Crucial part of the system is its <strong>publishing</strong> capability.
+In order to render PDF documents, we utilize third-party software.
+Within the software, the whole process of rendering printable documents can be cleverly automated by reusing a common template and applying different sets of content to it.
+To apply some content to the template, input format of the content must be XML which conforms to a <strong>provided schema</strong> (other than DITA).
+How do we prepare the input to manipulate the template?
+XML in, XML out - you guessed it, we do <strong>XSLT</strong>.</p>
+
+<p>By popular demand, XSLT is <strong>not the finest programming language</strong> that every developer likes to work with.
+It is based on <strong>functional concepts</strong> though, which after a while makes it a bit more attractive than it initially seemed to be.
+Be aware, one day I might even happen to write a post or two on XSLT only (that's what they call <a href="https://en.wikipedia.org/wiki/Stockholm_syndrome">Stockholm syndrome</a>, isn't it?).
+I'm playing a devil's advocate, you may think, but there's one gloomy thing about this <a href="https://en.wikipedia.org/wiki/Domain-specific_language">DSL</a> I'll have to admit: 
+XSLT can get really <strong>hard to maintain</strong> and tricky after it reaches a certain level of complexity.
+That's why we have automated tests suite in our codebase, just to address these kinds of transformations.
+Majority of them are written in F# using a powerfull library for property-based testing, <a href="https://fscheck.github.io/FsCheck/">FsCheck</a>.</p>
 
 <p><a href="http://theimowski.com/PropertyBasedTestsWithFSharp">Presentation</a></p>
+
+<!-- mention suave in japanese -->
 
 
 </div>
