@@ -121,7 +121,7 @@ Anyway bear with me - I think I've got something interesting to share.</p>
 
 <p>My job is to develop and maintain a <strong>Content Management System</strong> (CMS). 
 The company I work for is a big corporation and because big corporation often equals <strong>enterprise</strong> software, we deal <strong>a lot</strong> with the programmers' (especially Java) beloved enterprise format, namely XML.
-We store all the documents in the XML format, conforming to the <strong><a href="http://dita.xml.org/">DITA XML standard</a></strong> (with slight customizations).</p>
+We store all the documents in the XML format, conforming to the <a href="http://dita.xml.org/">DITA XML standard</a> (with slight customizations).</p>
 
 <p>Crucial part of the system is its <strong>publishing</strong> capability.
 In order to render PDF documents, we utilize third-party software.
@@ -130,18 +130,145 @@ To apply some content to the template, input format of the content must be XML w
 How do we prepare the input to manipulate the template?
 XML in, XML out - you guessed it, we do <strong>XSLT</strong>.</p>
 
-<p>By popular demand, XSLT is <strong>not the finest programming language</strong> that every developer likes to work with.
+<p>XSLT probably doesn't stand for one of the finest tools that every developer likes to work with.
+Verbose syntax (which itself must be a valid XML), dynamic typing, immature tooling or template matching ambiguity are IMO the biggest cons of XSLT. 
 It is based on <strong>functional concepts</strong> though, which after a while makes it a bit more attractive than it initially seemed to be.
 Be aware, one day I might even happen to write a post or two on XSLT only (that's what they call <a href="https://en.wikipedia.org/wiki/Stockholm_syndrome">Stockholm syndrome</a>, isn't it?).
 I'm playing a devil's advocate, you may think, but there's one gloomy thing about this <a href="https://en.wikipedia.org/wiki/Domain-specific_language">DSL</a> I'll have to admit: 
 XSLT can get really <strong>hard to maintain</strong> and tricky after it reaches a certain level of complexity.
-That's why we have automated tests suite in our codebase, just to address these kinds of transformations.
-Majority of them are written in F# using a powerfull library for property-based testing, <a href="https://fscheck.github.io/FsCheck/">FsCheck</a>.</p>
+That's why we have automated tests suite in our code-base, just to address XSL transformations.
+Majority of them are written in F# using a powerful library for property-based testing, <a href="https://fscheck.github.io/FsCheck/">FsCheck</a>.</p>
+
+<div class="message">
+
+<p>If you're new to the concept of property-based testing and using FsCheck library, I highly recommend reading <a href="http://fsharpforfunandprofit.com/posts/property-based-testing/">this</a> introductory article.
+Code snippets that follow also assume some basic knowledge of traversing the XML tree - don't hesitate to browse the web if you need any revision on this topic.</p>
+
+</div>
+
+<h2>DITA XML</h2>
+
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+<span class="l">4: </span>
+<span class="l">5: </span>
+<span class="l">6: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="xml"><span class="k">&lt;</span><span class="i">topic</span><span class="k">&gt;</span>
+    <span class="k">&lt;</span><span class="i">title</span><span class="k">&gt;</span>My first publication<span class="k">&lt;/</span><span class="i">title</span><span class="k">&gt;</span>
+    <span class="k">&lt;</span><span class="i">body</span><span class="k">&gt;</span>
+        <span class="k">&lt;</span><span class="i">p</span><span class="k">&gt;</span>Hello <span class="k">&lt;</span><span class="i">b</span><span class="k">&gt;</span>world!<span class="k">&lt;/</span><span class="i">b</span><span class="k">&gt;&lt;/</span><span class="i">p</span><span class="k">&gt;</span>
+    <span class="k">&lt;/</span><span class="i">body</span><span class="k">&gt;</span>
+<span class="k">&lt;/</span><span class="i">topic</span><span class="k">&gt;</span>
+</code></pre></td></tr></table>
+
+<h2>Generator</h2>
+
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l"> 1: </span>
+<span class="l"> 2: </span>
+<span class="l"> 3: </span>
+<span class="l"> 4: </span>
+<span class="l"> 5: </span>
+<span class="l"> 6: </span>
+<span class="l"> 7: </span>
+<span class="l"> 8: </span>
+<span class="l"> 9: </span>
+<span class="l">10: </span>
+<span class="l">11: </span>
+<span class="l">12: </span>
+<span class="l">13: </span>
+<span class="l">14: </span>
+<span class="l">15: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span onmouseout="hideTip(event, 'fs1', 1)" onmouseover="showTip(event, 'fs1', 1)" class="i">title</span> <span class="o">=</span> <span class="i">gen</span> {
+    <span class="k">let!</span> <span class="i">contents</span> <span class="o">=</span> <span class="i">contents</span>
+    <span class="k">return</span> <span class="i">XElement</span>(<span class="s">&quot;title&quot;</span>, <span class="i">contents</span>)
+}
+
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs2', 2)" onmouseover="showTip(event, 'fs2', 2)" class="i">body</span> <span class="o">=</span> <span class="i">gen</span> {
+    <span class="k">let!</span> <span class="i">items</span> <span class="o">=</span> <span class="i">Gen</span><span class="o">.</span><span class="i">oneOf</span> [ <span class="i">para</span>; <span class="i">table</span>; <span class="i">chart</span> ] <span class="o">|&gt;</span> <span class="i">Gen</span><span class="o">.</span><span class="i">listOf</span>
+    <span class="k">return</span> <span class="i">XElement</span>(<span class="s">&quot;body&quot;</span>, <span class="i">items</span>)
+}
+
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs3', 3)" onmouseover="showTip(event, 'fs3', 3)" class="i">topic</span> <span class="o">=</span> <span class="i">gen</span> {
+    <span class="k">let!</span> <span onmouseout="hideTip(event, 'fs1', 4)" onmouseover="showTip(event, 'fs1', 4)" class="i">title</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs1', 5)" onmouseover="showTip(event, 'fs1', 5)" class="i">title</span>
+    <span class="k">let!</span> <span onmouseout="hideTip(event, 'fs2', 6)" onmouseover="showTip(event, 'fs2', 6)" class="i">body</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs2', 7)" onmouseover="showTip(event, 'fs2', 7)" class="i">body</span>
+    <span class="k">return</span> <span class="i">XElement</span>(<span class="s">&quot;topic&quot;</span>, <span onmouseout="hideTip(event, 'fs1', 8)" onmouseover="showTip(event, 'fs1', 8)" class="i">title</span>, <span onmouseout="hideTip(event, 'fs2', 9)" onmouseover="showTip(event, 'fs2', 9)" class="i">body</span>)
+}
+</code></pre></td>
+</tr>
+</table>
+
+<h2>Tests</h2>
+
+<p>Let's move straight to the first test. 
+I'll skip all the boring boilerplate code necessary for setting up the <code>System.Xml.Linq</code> library and helper functions.</p>
+
+<!-- maybe don't skip ? -->
+
+<h3>Conforming to XML schema</h3>
+
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+<span class="l">4: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp">[&lt;<span class="i">Property</span>&gt;]
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs4', 10)" onmouseover="showTip(event, 'fs4', 10)" class="f">``modifier XML conforms to schema``</span> (<span onmouseout="hideTip(event, 'fs5', 11)" onmouseover="showTip(event, 'fs5', 11)" class="i">topic</span><span class="o">:</span> <span class="i">XDocument</span>) <span class="o">=</span>
+    <span class="k">let</span> <span onmouseout="hideTip(event, 'fs6', 12)" onmouseover="showTip(event, 'fs6', 12)" class="i">output</span> <span class="o">=</span> <span class="i">xsltTransform</span> <span class="s">&quot;topic.xslt&quot;</span> <span onmouseout="hideTip(event, 'fs5', 13)" onmouseover="showTip(event, 'fs5', 13)" class="i">topic</span>
+    <span class="i">doesNotThrow</span> (<span class="k">fun</span> () <span class="k">-&gt;</span> <span class="i">schema</span><span class="o">.</span><span class="i">Validate</span> <span onmouseout="hideTip(event, 'fs6', 14)" onmouseover="showTip(event, 'fs6', 14)" class="i">output</span>)
+</code></pre></td>
+</tr>
+</table>
+
+<h3>Proper bold attribute</h3>
+
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l"> 1: </span>
+<span class="l"> 2: </span>
+<span class="l"> 3: </span>
+<span class="l"> 4: </span>
+<span class="l"> 5: </span>
+<span class="l"> 6: </span>
+<span class="l"> 7: </span>
+<span class="l"> 8: </span>
+<span class="l"> 9: </span>
+<span class="l">10: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp">[&lt;<span class="i">Property</span>&gt;]
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs7', 15)" onmouseover="showTip(event, 'fs7', 15)" class="f">``if text node under &quot;b&quot; element then richtext has bold``</span> (<span onmouseout="hideTip(event, 'fs5', 16)" onmouseover="showTip(event, 'fs5', 16)" class="i">topic</span>) <span class="o">=</span>
+    <span class="k">let</span> <span onmouseout="hideTip(event, 'fs6', 17)" onmouseover="showTip(event, 'fs6', 17)" class="i">output</span> <span class="o">=</span> <span class="i">xsltTransform</span> <span class="s">&quot;topic.xslt&quot;</span> <span onmouseout="hideTip(event, 'fs5', 18)" onmouseover="showTip(event, 'fs5', 18)" class="i">topic</span>
+    <span class="k">let</span> <span onmouseout="hideTip(event, 'fs8', 19)" onmouseover="showTip(event, 'fs8', 19)" class="i">textNodes</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs5', 20)" onmouseover="showTip(event, 'fs5', 20)" class="i">topic</span>  <span class="o">|&gt;</span> <span class="i">xpath</span> <span class="s">&quot;//text()&quot;</span>
+    <span class="k">let</span> <span onmouseout="hideTip(event, 'fs9', 21)" onmouseover="showTip(event, 'fs9', 21)" class="i">richtexts</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs6', 22)" onmouseover="showTip(event, 'fs6', 22)" class="i">output</span> <span class="o">|&gt;</span> <span class="i">xpath</span> <span class="s">&quot;//RICHTEXT&quot;</span>
+
+    (<span onmouseout="hideTip(event, 'fs8', 23)" onmouseover="showTip(event, 'fs8', 23)" class="i">textNodes</span>, <span onmouseout="hideTip(event, 'fs9', 24)" onmouseover="showTip(event, 'fs9', 24)" class="i">richtexts</span>)
+    <span class="o">||&gt;</span> <span onmouseout="hideTip(event, 'fs10', 25)" onmouseover="showTip(event, 'fs10', 25)" class="t">Seq</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs11', 26)" onmouseover="showTip(event, 'fs11', 26)" class="f">zip</span>
+    <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs10', 27)" onmouseover="showTip(event, 'fs10', 27)" class="t">Seq</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs12', 28)" onmouseover="showTip(event, 'fs12', 28)" class="f">filter</span> (<span onmouseout="hideTip(event, 'fs13', 29)" onmouseover="showTip(event, 'fs13', 29)" class="f">fst</span> <span class="o">&gt;</span><span class="o">&gt;</span> <span class="i">xpath</span> <span class="s">&quot;ancestor::b&quot;</span>)
+    <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs10', 30)" onmouseover="showTip(event, 'fs10', 30)" class="i">Seq</span><span class="o">.</span><span class="i">forAll</span> (<span onmouseout="hideTip(event, 'fs14', 31)" onmouseover="showTip(event, 'fs14', 31)" class="i">snd</span> <span class="o">&gt;</span><span class="o">&gt;</span> <span class="i">xpath</span> <span class="s">&quot;attribute::BOLD = &#39;TRUE&#39;&quot;</span>)
+</code></pre></td>
+</tr>
+</table>
+
+<h2>Shrinker</h2>
 
 <p><a href="http://theimowski.com/PropertyBasedTestsWithFSharp">Presentation</a></p>
 
 <!-- mention suave in japanese -->
 
+<div class="tip" id="fs1">val title : obj<br /><br />Full name: propertybasedtestingxslt.title</div>
+<div class="tip" id="fs2">val body : obj<br /><br />Full name: propertybasedtestingxslt.body</div>
+<div class="tip" id="fs3">val topic : obj<br /><br />Full name: propertybasedtestingxslt.topic</div>
+<div class="tip" id="fs4">val ( modifier XML conforms to schema ) : topic:&#39;a -&gt; &#39;b<br /><br />Full name: propertybasedtestingxslt.( modifier XML conforms to schema )</div>
+<div class="tip" id="fs5">val topic : &#39;a</div>
+<div class="tip" id="fs6">val output : obj</div>
+<div class="tip" id="fs7">val ( if text node under &quot;b&quot; element then richtext has bold ) : topic:&#39;a -&gt; &#39;b<br /><br />Full name: propertybasedtestingxslt.( if text node under &quot;b&quot; element then richtext has bold )</div>
+<div class="tip" id="fs8">val textNodes : seq&lt;obj&gt;</div>
+<div class="tip" id="fs9">val richtexts : seq&lt;obj&gt;</div>
+<div class="tip" id="fs10">module Seq<br /><br />from Microsoft.FSharp.Collections</div>
+<div class="tip" id="fs11">val zip : source1:seq&lt;&#39;T1&gt; -&gt; source2:seq&lt;&#39;T2&gt; -&gt; seq&lt;&#39;T1 * &#39;T2&gt;<br /><br />Full name: Microsoft.FSharp.Collections.Seq.zip</div>
+<div class="tip" id="fs12">val filter : predicate:(&#39;T -&gt; bool) -&gt; source:seq&lt;&#39;T&gt; -&gt; seq&lt;&#39;T&gt;<br /><br />Full name: Microsoft.FSharp.Collections.Seq.filter</div>
+<div class="tip" id="fs13">val fst : tuple:(&#39;T1 * &#39;T2) -&gt; &#39;T1<br /><br />Full name: Microsoft.FSharp.Core.Operators.fst</div>
+<div class="tip" id="fs14">val snd : tuple:(&#39;T1 * &#39;T2) -&gt; &#39;T2<br /><br />Full name: Microsoft.FSharp.Core.Operators.snd</div>
 
 </div>
       </div>
