@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+
+  <head>
+    <link href="http://gmpg.org/xfn/11" rel="profile">
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  
+    <!-- Enable responsiveness on mobile devices-->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+  
+    <title>Continuous delivery with FAKE, Paket and TeamCity</title>
+  
+    <!-- CSS -->
+    <link rel="stylesheet" href="/css/poole.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/lanyon.css">
+    <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=PT+Serif:400,400italic,700|PT+Sans:400">
+    
+    <!-- FSharp.Formatting Styles -->
+    <link rel="stylesheet" type="text/css" media="screen" href="/fsharp.formatting/tooltips.css" />
+  	<script type="text/javascript" src="/fsharp.formatting/tooltips.js"></script>
+    <script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+      
+    <!-- Icons -->
+    <link rel="apple-touch-icon" sizes="57x57" href="/apple-touch-icon-57x57.png">
+    <link rel="apple-touch-icon" sizes="60x60" href="/apple-touch-icon-60x60.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="/apple-touch-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="76x76" href="/apple-touch-icon-76x76.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="/apple-touch-icon-114x114.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="/apple-touch-icon-120x120.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="/apple-touch-icon-144x144.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="/apple-touch-icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon-180x180.png">
+    <link rel="icon" type="image/png" href="/favicon-32x32.png" sizes="32x32">
+    <link rel="icon" type="image/png" href="/android-chrome-192x192.png" sizes="192x192">
+    <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96">
+    <link rel="icon" type="image/png" href="/favicon-16x16.png" sizes="16x16">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+    <meta name="msapplication-TileColor" content="#da532c">
+    <meta name="msapplication-TileImage" content="/mstile-144x144.png">
+    <meta name="theme-color" content="#ffffff">
+  
+    <style type="text/css">
+      table.pre td {
+        border: none;
+      }
+      
+      table.pre code {
+        font: 9pt 'Droid Sans Mono',consolas,monospace;
+      }
+    </style>
+    
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+    
+      ga('create', 'UA-71283003-1', 'auto');
+      ga('send', 'pageview');
+    
+    </script>
+  
+  </head>
+  <body>
+    <input type="checkbox" class="sidebar-checkbox" id="sidebar-checkbox">
+
+    <div class="sidebar" id="sidebar">
+      <div class="sidebar-item">
+        <p>My website - place where I share thoughts on programming</p>
+      </div>
+    
+      <nav class="sidebar-nav">
+        <a class="sidebar-nav-item" href="/blog/index.html">Blog</a>
+        <a class="sidebar-nav-item" href="/about/index.html">About me</a>
+      </nav>
+    
+      <div class="sidebar-item">
+        <p>Created with <a target="_blank" href="https://github.com/fsprojects/FsBlog">FsBlog</a> and <a target="_blank" href="http://lanyon.getpoole.com/">Lanyon</a></p>
+        <p>&copy; Tomasz Heimowski, 2015.</p>
+      </div>
+
+    </div>
+
+    <div class="wrap">
+      <div class="masthead">
+        <div class="container">
+
+          <h3 class="masthead-title">
+            <a href="/index.html" title="Home">Tomasz Heimowski</a>
+          </h3>
+        </div>
+      </div>
+
+      <div class="container content">
+        
+
+<div class="post">
+  <h1 class="post-title">Continuous delivery with FAKE, Paket and TeamCity</h1>
+  
+<p>Efficient continuous delivery process can speed up greatly development cycle, improve feedback loop and help to manage automatic deployments.   <br />
+In this entry I'll present how one can configure a continuous delivery chain using combination of following tools: <a href="http://fsharp.github.io/FAKE/">FAKE</a>, <a href="http://fsprojects.github.io/Paket/">Paket</a> and <a href="https://www.jetbrains.com/teamcity/">TeamCity</a>.</p>
+
+<!--more-->
+
+<h2>Assumptions</h2>
+
+<p>Let's start with defining goals of the process as described in this post:</p>
+
+<ul>
+<li>Each push to master branch has to trigger a build on the build server,</li>
+<li>The build server builds up a package, runs a suite of tests upon that package and exposes the package as a build artifact with its specific version,</li>
+<li>The package can be deployed to <code>TEST</code> environment only if the build succeeded,</li>
+<li>The package can be deployed to <code>PROD</code> environment only if it was already deployed to <code>TEST</code> before (and tested there),</li>
+<li>In order to verify which version is in what environment, all runs are marked with the build version,</li>
+<li>There are scripts for both build and deploy steps, written with help of common tools.</li>
+</ul>
+
+<p>For the sake of this example, we'll build a very simple package containing a single file.
+The deploy part boils down to firing a HTTP POST request with contents of the file in the request's body.
+This minimal setup can be later extended to more sophisticated use cases.</p>
+
+<p>Some TeamCity concepts are used throughout the entry, which are not explained, so in case of any doubts refer to <a href="https://www.jetbrains.com/teamcity/documentation/">the docs</a>.</p>
+
+<h2>Build scripts</h2>
+
+<p>In the first turn, we need to <a href="http://fsprojects.github.io/Paket/installation.html#Installation-per-repository">bootstrap Paket</a>.
+Then let's create <code>paket.dependencies</code> to pull <code>FAKE</code> library as well as other packages for testing:</p>
+
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+<span class="l">4: </span>
+<span class="l">5: </span>
+<span class="l">6: </span>
+<span class="l">7: </span>
+<span class="l">8: </span>
+<span class="l">9: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip"><code lang="cmd">source http://nuget.org/api/v2
+
+nuget FAKE
+
+// Tests
+nuget FsCheck
+nuget FsCheck.Xunit
+nuget xunit
+nuget xunit.runners
+</code></pre></td></tr></table>
+
+<p>Next, let's add <code>build.fsx</code> FAKE script:</p>
+
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l"> 1: </span>
+<span class="l"> 2: </span>
+<span class="l"> 3: </span>
+<span class="l"> 4: </span>
+<span class="l"> 5: </span>
+<span class="l"> 6: </span>
+<span class="l"> 7: </span>
+<span class="l"> 8: </span>
+<span class="l"> 9: </span>
+<span class="l">10: </span>
+<span class="l">11: </span>
+<span class="l">12: </span>
+<span class="l">13: </span>
+<span class="l">14: </span>
+<span class="l">15: </span>
+<span class="l">16: </span>
+<span class="l">17: </span>
+<span class="l">18: </span>
+<span class="l">19: </span>
+<span class="l">20: </span>
+<span class="l">21: </span>
+<span class="l">22: </span>
+<span class="l">23: </span>
+<span class="l">24: </span>
+<span class="l">25: </span>
+<span class="l">26: </span>
+<span class="l">27: </span>
+<span class="l">28: </span>
+<span class="l">29: </span>
+<span class="l">30: </span>
+<span class="l">31: </span>
+<span class="l">32: </span>
+<span class="l">33: </span>
+<span class="l">34: </span>
+<span class="l">35: </span>
+<span class="l">36: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="prep">#r</span> <span class="o">@</span><span class="s">&quot;packages/FAKE/tools/FakeLib.dll&quot;</span>
+
+<span class="k">open</span> <span class="i">Fake</span>
+<span class="k">open</span> <span class="i">Fake</span><span class="o">.</span><span class="i">TeamCityHelper</span>
+
+<span class="k">let</span> <span class="i">releaseNotes</span> <span class="o">=</span> <span class="i">File</span><span class="o">.</span><span class="i">ReadAllLines</span> <span class="s">&quot;RELEASE_NOTES.md&quot;</span>
+
+<span class="k">let</span> <span class="i">version</span> <span class="o">=</span> 
+    <span class="i">releaseNotes</span>
+    <span class="o">|&gt;</span> <span class="i">parseAllReleaseNotes</span>
+    <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs1', 1)" onmouseover="showTip(event, 'fs1', 1)" class="i">List</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs2', 2)" onmouseover="showTip(event, 'fs2', 2)" class="i">head</span>
+    <span class="o">|&gt;</span> <span class="k">fun</span> <span class="i">x</span> <span class="k">-&gt;</span> <span class="i">x</span><span class="o">.</span><span class="i">SemVer</span><span class="o">.</span><span class="i">ToString</span>()
+
+<span class="k">let</span> <span class="i">teamCityIsPresent</span> <span class="o">=</span> <span class="i">TeamCityVersion</span><span class="o">.</span><span class="i">IsSome</span>
+
+<span class="i">Target</span> <span class="s">&quot;Clean&quot;</span> (<span class="k">fun</span> _ <span class="k">-&gt;</span>
+    <span class="i">CleanDirs</span> [<span class="s">&quot;./build/&quot;</span>]
+)
+
+<span class="i">Target</span> <span class="s">&quot;Test&quot;</span> (<span class="k">fun</span> _ <span class="k">-&gt;</span>
+    <span class="c">// not relevant here</span>
+    <span class="i">DoNothing</span> () 
+)
+
+<span class="i">Target</span> <span class="s">&quot;Build&quot;</span> (<span class="k">fun</span> _ <span class="k">-&gt;</span>
+    <span class="k">if</span> <span class="i">teamCityIsPresent</span> <span class="k">then</span>
+        <span class="i">SetBuildNumber</span> (<span onmouseout="hideTip(event, 'fs3', 3)" onmouseover="showTip(event, 'fs3', 3)" class="i">sprintf</span> <span class="s">&quot;%s.%s&quot;</span> <span class="i">version</span> <span class="i">TeamCityBuildNumber</span><span class="o">.</span><span class="i">Value</span>)
+
+    <span class="s">&quot;./src/file&quot;</span> <span class="i">CopyFile</span> <span class="s">&quot;./build/file&quot;</span>
+)
+
+<span class="s">&quot;Clean&quot;</span>
+    <span class="o">==&gt;</span> <span class="s">&quot;Test&quot;</span>
+    <span class="o">==&gt;</span> <span class="s">&quot;Build&quot;</span>
+
+<span class="i">RunTargetOrDefault</span> <span class="s">&quot;Build&quot;</span>
+</code></pre></td>
+</tr>
+</table>
+
+<p>What "Build" target does in above snippet is copying file from <code>src</code> to <code>build</code> directory, but you can imagine that there occurs some process of building instead.
+In addition to that, "Build" target sets the TeamCity build number to X.X.X.X format, where first three numbers (major, minor, patch) are read from the first line of <code>RELEASE_NOTES.md</code> and the last number is taken from the TeamCity build counter (always incremented).</p>
+
+<p>Finally add <code>build.cmd</code> helper script (for Unix you can create corresponing .sh script):</p>
+
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l"> 1: </span>
+<span class="l"> 2: </span>
+<span class="l"> 3: </span>
+<span class="l"> 4: </span>
+<span class="l"> 5: </span>
+<span class="l"> 6: </span>
+<span class="l"> 7: </span>
+<span class="l"> 8: </span>
+<span class="l"> 9: </span>
+<span class="l">10: </span>
+<span class="l">11: </span>
+<span class="l">12: </span>
+<span class="l">13: </span>
+<span class="l">14: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip"><code lang="cmd">@echo off
+cls
+
+.paket/paket.bootstrapper.exe
+if errorlevel 1 (
+  exit /b %errorlevel%
+)
+
+.paket/paket.exe restore
+if errorlevel 1 (
+  exit /b %errorlevel%
+)
+
+packages/FAKE/tools/FAKE.exe build.fsx %*
+</code></pre></td></tr></table>
+
+<div class="message">
+
+<p>Alternatively, we could have used <a href="https://github.com/fsprojects/ProjectScaffold">ProjectScaffold</a> to bootstrap the repository to use Paket + FAKE. I deliberately chose to configure it myself, as ProjectScaffold by default contains some funky stuff I didn't need, e.g. creating and publishing NuGet package for your project.</p>
+
+</div>
+
+<h2>Deployment scripts</h2>
+
+<p>Now, let's move to creating scripts for automatic deployment.
+For that reason, at the end of <code>paket.dependencies</code> file we'll add a <a href="http://fsprojects.github.io/Paket/groups.html">dependency group</a>:</p>
+
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+<span class="l">4: </span>
+<span class="l">5: </span>
+<span class="l">6: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip"><code lang="cmd">group Deploy
+
+    source http://nuget.org/api/v2
+    
+    nuget FAKE
+    nuget Http.fs-prerelease
+</code></pre></td></tr></table>
+
+<p>This dependency group will allow to restore packages needed for deploy part only, i.e. FAKE to run the deploy script and a helper HTTP client library, <a href="https://github.com/haf/Http.fs">Http.fs-prerelease</a>.</p>
+
+<p>Deploy script written in FAKE can look like something between those lines:</p>
+
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l"> 1: </span>
+<span class="l"> 2: </span>
+<span class="l"> 3: </span>
+<span class="l"> 4: </span>
+<span class="l"> 5: </span>
+<span class="l"> 6: </span>
+<span class="l"> 7: </span>
+<span class="l"> 8: </span>
+<span class="l"> 9: </span>
+<span class="l">10: </span>
+<span class="l">11: </span>
+<span class="l">12: </span>
+<span class="l">13: </span>
+<span class="l">14: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="prep">#r</span> <span class="o">@</span><span class="s">&quot;packages/deploy/FAKE/tools/FakeLib.dll&quot;</span>
+<span class="prep">#r</span> <span class="o">@</span><span class="s">&quot;packages/deploy/Http.fs-prerelease/lib/net40/HttpFs.dll&quot;</span>
+
+<span class="k">open</span> <span class="i">Fake</span>
+<span class="k">open</span> <span class="i">HttpFs</span><span class="o">.</span><span class="i">Client</span>
+
+<span class="i">Target</span> <span class="s">&quot;Deploy&quot;</span> (<span class="k">fun</span> _ <span class="k">-&gt;</span>
+    <span class="c">// read optional parameters</span>
+    <span class="k">let</span> <span class="i">host</span> <span class="o">=</span> <span class="i">getBuildParamOrDefault</span> <span class="s">&quot;host&quot;</span> <span class="s">&quot;localhost&quot;</span>
+    <span class="k">let</span> <span class="i">port</span> <span class="o">=</span> <span class="i">getBuildParamOrDefault</span> <span class="s">&quot;port&quot;</span> <span class="s">&quot;80&quot;</span>
+    <span class="c">// Take the file from build and send a HTTP POST request to target machine </span>
+)
+
+<span class="i">RunTargetOrDefault</span> <span class="s">&quot;Deploy&quot;</span>
+</code></pre></td>
+</tr>
+</table>
+
+<p>And the corresponding <code>deploy.cmd</code> (note the additional <code>group deploy</code> for <code>restore</code> command and <code>deploy</code> in <code>packages</code> directory):</p>
+
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l"> 1: </span>
+<span class="l"> 2: </span>
+<span class="l"> 3: </span>
+<span class="l"> 4: </span>
+<span class="l"> 5: </span>
+<span class="l"> 6: </span>
+<span class="l"> 7: </span>
+<span class="l"> 8: </span>
+<span class="l"> 9: </span>
+<span class="l">10: </span>
+<span class="l">11: </span>
+<span class="l">12: </span>
+<span class="l">13: </span>
+<span class="l">14: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip"><code lang="cmd">@echo off
+cls
+
+.paket/paket.bootstrapper.exe
+if errorlevel 1 (
+  exit /b %errorlevel%
+)
+
+.paket/paket.exe restore group deploy
+if errorlevel 1 (
+  exit /b %errorlevel%
+)
+
+packages/deploy/FAKE/tools/FAKE.exe deploy.fsx %*
+</code></pre></td></tr></table>
+
+<h2>Building package on TeamCity</h2>
+
+<p>Creating appropriate build configuration on TeamCity gets pretty easy now:</p>
+
+<ol>
+<li>Attach VCS Root,</li>
+<li>Add VCS Trigger,</li>
+<li>Define a single Command Line build step,</li>
+<li>Specify Artifacts path.</li>
+</ol>
+
+<p>Command for the build step is just <code>build</code> (runs the <code>build.cmd</code> script):</p>
+
+<p><img src="build_step.png" alt="build step" /></p>
+
+<p>To create the package, we need:</p>
+
+<ul>
+<li>deploy scripts <code>deploy.*</code> (includes fsx and cmd)</li>
+<li>paket files <code>paket.*</code> (includes dependencies and lock file)</li>
+<li>artfiacts from <code>build/*</code> directory</li>
+<li><code>paket.bootstrapper.exe</code></li>
+</ul>
+
+<p><img src="artifacts.png" alt="artifacts" /></p>
+
+<p>The resulting package will look like below:</p>
+
+<p><img src="package.png" alt="package" /></p>
+
+<h2>TeamCity Deploy chain</h2>
+
+<p>Having passed tests and built the package on TeamCity, we can now create a following deployment chain:</p>
+
+<p><img src="chain.png" alt="chain" /></p>
+
+<p>This can be achieved by defining new TeamCity configurations <code>Deploy TEST</code> and <code>Deploy PROD</code> (below list applies to both configurations):</p>
+
+<ol>
+<li>Specify artifact dependency,</li>
+<li>Specify snapshot dependency,</li>
+<li>Add single Command Line build step,</li>
+<li>Fill in appropriate parameters.</li>
+</ol>
+
+<p>Both <code>TEST</code> and <code>PROD</code> environment need the same artifact dependency built from <code>Build</code> configuration:</p>
+
+<p><img src="depl_artif_dep.png" alt="depl_artif_dep" /></p>
+
+<p>Note the "Build from the same chain" option. It ensures that the same package is used for both <code>Deploy</code> configurations.
+In order to unzip contents of the <code>package.zip</code> in working directroy, we have to type <code>package.zip!**</code> in the "Artifacts Path" field.</p>
+
+<p>Deploy configurations will differ with regards to snapshot dependency. The <code>Deploy TEST</code> configuration should depend on <code>Build</code>:</p>
+
+<p><img src="depl_snapshot_dep.png" alt="depl snapshot dep" /></p>
+
+<p>and <code>Deploy PROD</code> should depend on <code>Deploy TEST</code>:</p>
+
+<p><img src="depl_snapshot_dep_test.png" alt="depl snapshot dep" /></p>
+
+<p>For the command line step, we'll just have to call <code>deploy</code> (possibly with passing parameters for target environment host and port):</p>
+
+<p><img src="depl_build_step.png" alt="depl build step" /></p>
+
+<h2>Summary</h2>
+
+<p>With this setup, every push to the master branch will trigger <code>Build</code> configuration.
+If the tests pass, <code>package.zip</code> gets created and exposed as the configuration's artifact.
+Successful <code>Build</code> enables next step, which is <code>Deploy TEST</code>.
+It can be done either manually, or in automatic fashion as well (for instance by attaching a build trigger).
+<code>Deploy PROD</code> behaves in similar way - it can be run only if <code>Deploy TEST</code> was executed successfully.</p>
+
+<p>It's also useful to subscribe to TeamCity notifications upon successful deployment, so that we're always up-to-date with latest deployments.
+As of version 8.1.3 TeamCity supports Email, IDE Notifier, Jabber and Windows Tray notifiactions.</p>
+
+<div class="tip" id="fs1">Multiple items<br />module List<br /><br />from Microsoft.FSharp.Collections<br /><br />--------------------<br />type List&lt;&#39;T&gt; =<br />&#160;&#160;| ( [] )<br />&#160;&#160;| ( :: ) of Head: &#39;T * Tail: &#39;T list<br />&#160;&#160;interface IEnumerable<br />&#160;&#160;interface IEnumerable&lt;&#39;T&gt;<br />&#160;&#160;member GetSlice : startIndex:int option * endIndex:int option -&gt; &#39;T list<br />&#160;&#160;member Head : &#39;T<br />&#160;&#160;member IsEmpty : bool<br />&#160;&#160;member Item : index:int -&gt; &#39;T with get<br />&#160;&#160;member Length : int<br />&#160;&#160;member Tail : &#39;T list<br />&#160;&#160;static member Cons : head:&#39;T * tail:&#39;T list -&gt; &#39;T list<br />&#160;&#160;static member Empty : &#39;T list<br /><br />Full name: Microsoft.FSharp.Collections.List&lt;_&gt;</div>
+<div class="tip" id="fs2">val head : list:&#39;T list -&gt; &#39;T<br /><br />Full name: Microsoft.FSharp.Collections.List.head</div>
+<div class="tip" id="fs3">val sprintf : format:Printf.StringFormat&lt;&#39;T&gt; -&gt; &#39;T<br /><br />Full name: Microsoft.FSharp.Core.ExtraTopLevelOperators.sprintf</div>
+
+  
+  <div id="disqus_thread"></div>
+    <script>
+        var disqus_config = function () {
+            this.page.url = 'http://theimowski.com/blog//index.html';
+            this.page.identifier = '';
+        };
+        (function() {  // DON'T EDIT BELOW THIS LINE
+            var d = document, s = d.createElement('script');
+            
+            s.src = '//theimowski.disqus.com/embed.js';
+            
+            s.setAttribute('data-timestamp', +new Date());
+            (d.head || d.body).appendChild(s);
+        })();
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+</div>
+      </div>
+    </div>
+
+    <label for="sidebar-checkbox" class="sidebar-toggle"></label>
+
+    <script>
+      (function(document) {
+        var toggle = document.querySelector('.sidebar-toggle');
+        var sidebar = document.querySelector('#sidebar');
+        var checkbox = document.querySelector('#sidebar-checkbox');
+
+        document.addEventListener('click', function(e) {
+          var target = e.target;
+
+          if(!checkbox.checked ||
+             sidebar.contains(target) ||
+             (target === checkbox || target === toggle)) return;
+
+          checkbox.checked = false;
+        }, false);
+      })(document);
+    </script>
+
+  </body>
+</html>

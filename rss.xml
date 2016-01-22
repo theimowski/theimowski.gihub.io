@@ -5,6 +5,17 @@
     <description>FsBlog aims to be a blog-aware static site generator, mostly built in F#. But don't worry,  you won't even need to know any F# to get up and running. So long as you are comfortable  using a command line or terminal, and have a degree of familiarity with Markdown and Razor  syntax - you're good to go!
 </description>
     <item>
+      <title>Continuous delivery with FAKE, Paket and TeamCity</title>
+      <guid>http://theimowski.com//blog/2016/01-18-continuous-delivery-with-fake-paket-and-teamcity</guid>
+      <link>http://theimowski.com//blog/2016/01-18-continuous-delivery-with-fake-paket-and-teamcity/index.html</link>
+      <pubDate>Fri, 22 Jan 2016 17:24:38 GMT</pubDate>
+      <description>&lt;p&gt;Efficient continuous delivery process can speed up greatly development cycle, improve feedback loop and help to manage automatic deployments.   &lt;br /&gt;
+In this entry I'll present how one can configure a continuous delivery chain using combination of following tools: &lt;a href="http://fsharp.github.io/FAKE/"&gt;FAKE&lt;/a&gt;, &lt;a href="http://fsprojects.github.io/Paket/"&gt;Paket&lt;/a&gt; and &lt;a href="https://www.jetbrains.com/teamcity/"&gt;TeamCity&lt;/a&gt;.&lt;/p&gt;
+
+
+</description>
+    </item>
+    <item>
       <title>Property-based testing XSLT</title>
       <guid>http://theimowski.com//blog/2015/12-21-property-based-testing-xslt</guid>
       <link>http://theimowski.com//blog/2015/12-21-property-based-testing-xslt/index.html</link>
