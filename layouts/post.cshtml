@@ -1,5 +1,7 @@
+@using System.Linq
 @{
     Layout = "default";
+    Url = Model.Posts.Single(p => p.Title == Title).Url;
 }
 
 <div class="post">
@@ -9,8 +11,8 @@
   <div id="disqus_thread"></div>
     <script>
         var disqus_config = function () {
-            this.page.url = 'http://theimowski.com/blog/@Url/index.html';
-            this.page.identifier = '@Url';
+            this.page.url = "http://theimowski.com/blog/@Url/index.html";
+            this.page.identifier = "@Url";
         };
         (function() {  // DON'T EDIT BELOW THIS LINE
             var d = document, s = d.createElement('script');
