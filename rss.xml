@@ -2,14 +2,26 @@
   <channel>
     <title>Tomasz Heimowski Blog</title>
     <link>http://theimowski.com/</link>
-    <description>FsBlog aims to be a blog-aware static site generator, mostly built in F#. But don't worry,  you won't even need to know any F# to get up and running. So long as you are comfortable  using a command line or terminal, and have a degree of familiarity with Markdown and Razor  syntax - you're good to go!
+    <description>FsBlog aims to be a blog-aware static site generator, mostly built in F#. But don't worry, you won't even need to know any F# to get up and running. So long as you are comfortable using a command line or terminal, and have a degree of familiarity with Markdown and Razor syntax - you're good to go!
 </description>
+    <item>
+      <title>Dockerizing Suave Music Store on mono</title>
+      <guid>http://theimowski.com//blog/2016/03-25-dockerizing-suave-music-store-on-mono</guid>
+      <link>http://theimowski.com//blog/2016/03-25-dockerizing-suave-music-store-on-mono/index.html</link>
+      <pubDate>Sat, 26 Mar 2016 10:06:56 GMT</pubDate>
+      <description>&lt;p&gt;I've written the &lt;a href="https://theimowski.gitbooks.io/suave-music-store"&gt;Suave Music Store GitBook&lt;/a&gt;, which helped quite a few people to get started with the &lt;a href="https://suave.io/"&gt;Suave.IO&lt;/a&gt; library for creating web applications in F#.
+However the original version of tutorial didn't really feel x-platform, as it was designed to work on Windows only.
+I decided to revisit the tutorial and add 3 more sections describing how to convert the app to run on &lt;a href="http://www.mono-project.com/"&gt;mono&lt;/a&gt; and place inside a &lt;a href="https://www.docker.com/"&gt;Docker&lt;/a&gt; container.&lt;/p&gt;
+
+
+</description>
+    </item>
     <item>
       <title>Continuous delivery with FAKE, Paket and TeamCity</title>
       <guid>http://theimowski.com//blog/2016/01-18-continuous-delivery-with-fake-paket-and-teamcity</guid>
       <link>http://theimowski.com//blog/2016/01-18-continuous-delivery-with-fake-paket-and-teamcity/index.html</link>
       <pubDate>Fri, 22 Jan 2016 17:24:38 GMT</pubDate>
-      <description>&lt;p&gt;Efficient continuous delivery process can speed up greatly development cycle, improve feedback loop and help to manage automatic deployments.   &lt;br /&gt;
+      <description>&lt;p&gt;Efficient continuous delivery process can speed up greatly development cycle, improve feedback loop and help to manage automatic deployments.&lt;br /&gt;
 In this entry I'll present how one can configure a continuous delivery chain using combination of following tools: &lt;a href="http://fsharp.github.io/FAKE/"&gt;FAKE&lt;/a&gt;, &lt;a href="http://fsprojects.github.io/Paket/"&gt;Paket&lt;/a&gt; and &lt;a href="https://www.jetbrains.com/teamcity/"&gt;TeamCity&lt;/a&gt;.&lt;/p&gt;
 
 
@@ -20,7 +32,7 @@ In this entry I'll present how one can configure a continuous delivery chain usi
       <guid>http://theimowski.com//blog/2015/12-21-property-based-testing-xslt</guid>
       <link>http://theimowski.com//blog/2015/12-21-property-based-testing-xslt/index.html</link>
       <pubDate>Mon, 21 Dec 2015 06:11:55 GMT</pubDate>
-      <description>&lt;p&gt;Property-based testing is a wonderful tool to verify correctness of your programs. 
+      <description>&lt;p&gt;Property-based testing is a wonderful tool to verify correctness of your programs.
 However, some people struggle with finding reasonable cases to use the technique.
 In this entry, I'll try to prove that property-based testing can be used in every-day coding by showing a rather &lt;strong&gt;exotic example&lt;/strong&gt; of applying property-based testing to check results of XSL transformations.&lt;/p&gt;
 
