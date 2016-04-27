@@ -5,6 +5,20 @@
     <description>FsBlog aims to be a blog-aware static site generator, mostly built in F#. But don't worry, you won't even need to know any F# to get up and running. So long as you are comfortable using a command line or terminal, and have a degree of familiarity with Markdown and Razor syntax - you're good to go!
 </description>
     <item>
+      <title>Dynamic load balancing in F#</title>
+      <guid>http://theimowski.com//blog/2016/04-27-dynamic-load-balancing-in-f</guid>
+      <link>http://theimowski.com//blog/2016/04-27-dynamic-load-balancing-in-f/index.html</link>
+      <pubDate>Wed, 27 Apr 2016 02:13:26 GMT</pubDate>
+      <description>&lt;p&gt;In this short entry I'll present how one can create a small load balancer in F# to optimize distribution of a set of computations between multiple nodes.
+The example will make use of powerful F# libraries:
+&lt;a href="http://fsprojects.github.io/FSharp.Control.AsyncSeq/index.html"&gt;FSharp.Control.AsyncSeq&lt;/a&gt;
+as well as
+&lt;a href="http://fsprojects.github.io/FSharpx.Async/index.html"&gt;FSharpx.Async&lt;/a&gt;.&lt;/p&gt;
+
+
+</description>
+    </item>
+    <item>
       <title>Dockerizing Suave Music Store on mono</title>
       <guid>http://theimowski.com//blog/2016/03-25-dockerizing-suave-music-store-on-mono</guid>
       <link>http://theimowski.com//blog/2016/03-25-dockerizing-suave-music-store-on-mono/index.html</link>

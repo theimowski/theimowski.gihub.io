@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+  <head>
+    <link href="http://gmpg.org/xfn/11" rel="profile">
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  
+    <!-- Enable responsiveness on mobile devices-->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+  
+    <title>Dynamic load balancing in F#</title>
+  
+    <!-- CSS -->
+    <link rel="stylesheet" href="/css/poole.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/lanyon.css">
+    <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=PT+Serif:400,400italic,700|PT+Sans:400">
+    
+    <!-- FSharp.Formatting Styles -->
+    <link rel="stylesheet" type="text/css" media="screen" href="/fsharp.formatting/tooltips.css" />
+  	<script type="text/javascript" src="/fsharp.formatting/tooltips.js"></script>
+    <script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+      
+    <!-- Icons -->
+    <link rel="apple-touch-icon" sizes="57x57" href="/apple-touch-icon-57x57.png">
+    <link rel="apple-touch-icon" sizes="60x60" href="/apple-touch-icon-60x60.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="/apple-touch-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="76x76" href="/apple-touch-icon-76x76.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="/apple-touch-icon-114x114.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="/apple-touch-icon-120x120.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="/apple-touch-icon-144x144.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="/apple-touch-icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon-180x180.png">
+    <link rel="icon" type="image/png" href="/favicon-32x32.png" sizes="32x32">
+    <link rel="icon" type="image/png" href="/android-chrome-192x192.png" sizes="192x192">
+    <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96">
+    <link rel="icon" type="image/png" href="/favicon-16x16.png" sizes="16x16">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+    <meta name="msapplication-TileColor" content="#da532c">
+    <meta name="msapplication-TileImage" content="/mstile-144x144.png">
+    <meta name="theme-color" content="#ffffff">
+  
+    <style type="text/css">
+      table.pre td {
+        border: none;
+      }
+      
+      table.pre code {
+        font: 9pt 'Droid Sans Mono',consolas,monospace;
+      }
+    </style>
+    
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+    
+      ga('create', 'UA-71283003-1', 'auto');
+      ga('send', 'pageview');
+    
+    </script>
+  
+  </head>
+  <body>
+    <input type="checkbox" class="sidebar-checkbox" id="sidebar-checkbox">
+
+    <div class="sidebar" id="sidebar">
+      <div class="sidebar-item">
+        <p>My website - place where I share thoughts on programming</p>
+      </div>
+    
+      <nav class="sidebar-nav">
+        <a class="sidebar-nav-item" href="/blog/index.html">Blog</a>
+        <a class="sidebar-nav-item" href="/about/index.html">About me</a>
+      </nav>
+    
+      <div class="sidebar-item">
+        <p>Created with <a target="_blank" href="https://github.com/fsprojects/FsBlog">FsBlog</a> and <a target="_blank" href="http://lanyon.getpoole.com/">Lanyon</a></p>
+        <p>&copy; Tomasz Heimowski, 2015.</p>
+      </div>
+
+    </div>
+
+    <div class="wrap">
+      <div class="masthead">
+        <div class="container">
+
+          <h3 class="masthead-title">
+            <a href="/index.html" title="Home">Tomasz Heimowski</a>
+          </h3>
+        </div>
+      </div>
+
+      <div class="container content">
+        
+
+<div class="post">
+  <h1 class="post-title">Dynamic load balancing in F#</h1>
+  
+<p>In this short entry I'll present how one can create a small load balancer in F# to optimize distribution of a set of computations between multiple nodes.
+The example will make use of powerful F# libraries:
+<a href="http://fsprojects.github.io/FSharp.Control.AsyncSeq/index.html">FSharp.Control.AsyncSeq</a>
+as well as
+<a href="http://fsprojects.github.io/FSharpx.Async/index.html">FSharpx.Async</a>.</p>
+<!--more-->
+<h2>Use case</h2>
+<p>Today I faced an interesting problem at work - for the purpose of regression testing we run several dozens of web service calls, each of which takes a noticable amount of time (even up to 120 seconds).
+These calls target a third-party software which renders a document in PDF format.
+We have set up a farm of servers to distribute the requests and speed up the regression testing.
+The software can queue requests, however there's a <strong>limited number</strong> of requests that can run in parallel on a single server (usually 4).
+Because of that, I decided to come up with a solution in F# which tries to distribute the requests as optimal as possible.</p>
+<h2>Idea</h2>
+<p>Initially I tried to split the input set into equal chunks, each for separate server.
+This worked quite well, but after a while it turned out that requests which targetted one server finished much earlier than others, and the <strong>fastest server was idle</strong> for the rest of time.
+Because of that I started looking for another solution.
+Browsing the web, I came across <a href="http://tomasp.net/blog/async-sequences.aspx/">this</a> article by Tomas Petricek, where the author described how to work with asynchronous sequences in F#.
+Provided samples and references led me to think of a different idea.</p>
+<p>I wanted to implement an algorithm, where each of the servers would initally take the maximum number of requests (4 in my case).
+Then whenever a response was back from one of the servers, this server would acquire next request from the queue.
+The pattern would continue iteratively until no more requests were found in the queue.
+I pre-ordered the queue descending by input size, so that the potentially longest-running computations could go in first turn.</p>
+<h2>Code</h2>
+<p>The solution depends on a few libraries, which we can install with <a href="http://fsprojects.github.io/Paket/">Paket</a>:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+<span class="l">4: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="i">source</span> <span class="i">http</span><span class="o">:</span><span class="c">//nuget.org/api/v2</span>
+
+<span class="i">nuget</span> <span onmouseout="hideTip(event, 'fs1', 1)" onmouseover="showTip(event, 'fs1', 1)" class="i">FSharp</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs2', 2)" onmouseover="showTip(event, 'fs2', 2)" class="i">Control</span><span class="o">.</span><span class="i">AsyncSeq</span>
+<span class="i">nuget</span> <span class="i">FSharpx</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs3', 3)" onmouseover="showTip(event, 'fs3', 3)" class="i">Async</span>
+</code></pre></td>
+</tr>
+</table>
+<p>And following is a snippet implementing the load balancer:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l"> 1: </span>
+<span class="l"> 2: </span>
+<span class="l"> 3: </span>
+<span class="l"> 4: </span>
+<span class="l"> 5: </span>
+<span class="l"> 6: </span>
+<span class="l"> 7: </span>
+<span class="l"> 8: </span>
+<span class="l"> 9: </span>
+<span class="l">10: </span>
+<span class="l">11: </span>
+<span class="l">12: </span>
+<span class="l">13: </span>
+<span class="l">14: </span>
+<span class="l">15: </span>
+<span class="l">16: </span>
+<span class="l">17: </span>
+<span class="l">18: </span>
+<span class="l">19: </span>
+<span class="l">20: </span>
+<span class="l">21: </span>
+<span class="l">22: </span>
+<span class="l">23: </span>
+<span class="l">24: </span>
+<span class="l">25: </span>
+<span class="l">26: </span>
+<span class="l">27: </span>
+<span class="l">28: </span>
+<span class="l">29: </span>
+<span class="l">30: </span>
+<span class="l">31: </span>
+<span class="l">32: </span>
+<span class="l">33: </span>
+<span class="l">34: </span>
+<span class="l">35: </span>
+<span class="l">36: </span>
+<span class="l">37: </span>
+<span class="l">38: </span>
+<span class="l">39: </span>
+<span class="l">40: </span>
+<span class="l">41: </span>
+<span class="l">42: </span>
+<span class="l">43: </span>
+<span class="l">44: </span>
+<span class="l">45: </span>
+<span class="l">46: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">open</span> <span onmouseout="hideTip(event, 'fs4', 4)" onmouseover="showTip(event, 'fs4', 4)" class="i">System</span>
+
+<span class="prep">#r</span> <span class="o">@</span><span class="s">&quot;packages/FSharp.Control.AsyncSeq/lib/net45/FSharp.Control.AsyncSeq.dll&quot;</span>
+<span class="k">open</span> <span onmouseout="hideTip(event, 'fs1', 5)" onmouseover="showTip(event, 'fs1', 5)" class="i">FSharp</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs2', 6)" onmouseover="showTip(event, 'fs2', 6)" class="i">Control</span>
+
+<span class="prep">#r</span> <span class="o">@</span><span class="s">&quot;packages/FSharpx.Async/lib/net40/FSharpx.Async.dll&quot;</span>
+<span class="k">open</span> <span class="i">FSharpx</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs2', 7)" onmouseover="showTip(event, 'fs2', 7)" class="i">Control</span>
+
+<span class="k">let</span> <span class="i">process</span> <span class="i">machine</span> <span class="i">input</span> <span class="o">=</span>
+    <span class="k">let</span> <span class="i">url</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs5', 8)" onmouseover="showTip(event, 'fs5', 8)" class="i">sprintf</span> <span class="s">&quot;http://%s/webservice/endpoint&quot;</span> <span class="i">machine</span>
+    
+    <span onmouseout="hideTip(event, 'fs6', 9)" onmouseover="showTip(event, 'fs6', 9)" class="i">async</span> {
+        <span class="c">// call a web service with a given input (file)</span>
+        <span class="k">return!</span> <span class="i">callService</span> <span class="i">url</span> <span class="i">input</span>
+    }
+
+<span class="k">let</span> <span class="i">renditions</span> (<span class="i">machines</span><span class="o">:</span> <span onmouseout="hideTip(event, 'fs7', 10)" onmouseover="showTip(event, 'fs7', 10)" class="i">string</span> <span onmouseout="hideTip(event, 'fs8', 11)" onmouseover="showTip(event, 'fs8', 11)" class="i">list</span>) (<span class="i">inputs</span><span class="o">:</span> <span onmouseout="hideTip(event, 'fs7', 12)" onmouseover="showTip(event, 'fs7', 12)" class="i">string</span> <span onmouseout="hideTip(event, 'fs8', 13)" onmouseover="showTip(event, 'fs8', 13)" class="i">list</span>) <span class="o">=</span>
+    
+    <span class="k">let</span> <span class="i">workersCount</span> <span class="o">=</span> <span class="n">4</span>
+    <span class="k">let</span> <span class="i">renditionsCount</span> <span class="o">=</span> <span class="i">inputs</span><span class="o">.</span><span class="i">Length</span>
+
+    <span class="i">asyncSeq</span> {
+        <span class="k">let</span> <span class="i">queue</span> <span class="o">=</span> <span class="i">BlockingQueueAgent</span><span class="o">&lt;</span>_<span class="o">&gt;</span>(<span class="i">renditionsCount</span>)
+        <span class="k">let</span> <span class="i">results</span> <span class="o">=</span> <span class="i">BlockingQueueAgent</span><span class="o">&lt;</span>_<span class="o">&gt;</span>(<span class="i">renditionsCount</span>)
+
+        <span class="k">let</span> <span class="k">rec</span> <span class="i">worker</span> <span class="i">machine</span>  <span class="o">=</span> <span onmouseout="hideTip(event, 'fs6', 14)" onmouseover="showTip(event, 'fs6', 14)" class="i">async</span> {
+            <span class="k">let!</span> <span class="i">input</span> <span class="o">=</span> <span class="i">queue</span><span class="o">.</span><span class="i">AsyncGet</span>()
+            <span class="k">let!</span> <span class="i">result</span> <span class="o">=</span> <span class="i">process</span> <span class="i">machine</span> <span class="i">input</span> 
+                
+            <span class="k">do!</span> <span class="i">results</span><span class="o">.</span><span class="i">AsyncAdd</span> (<span class="i">result</span>)
+            <span class="k">do!</span> <span class="i">worker</span> <span class="i">machine</span>
+        }
+
+        <span class="k">for</span> <span class="i">input</span> <span class="k">in</span> <span class="i">inputs</span> <span class="k">do</span>
+            <span class="k">do!</span> <span class="i">queue</span><span class="o">.</span><span class="i">AsyncAdd</span>(<span class="i">input</span>)
+
+        <span class="k">for</span> <span class="i">machine</span> <span class="k">in</span> <span class="i">machines</span> <span class="k">do</span>
+            <span class="k">for</span> <span class="i">i</span> <span class="k">in</span> <span class="n">0</span> <span class="o">..</span> <span class="i">workersCount</span> <span class="o">-</span> <span class="n">1</span> <span class="k">do</span>
+                <span class="i">worker</span> <span class="i">machine</span> <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs3', 15)" onmouseover="showTip(event, 'fs3', 15)" class="i">Async</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs9', 16)" onmouseover="showTip(event, 'fs9', 16)" class="i">Start</span>
+        
+        <span class="k">for</span> <span class="i">i</span> <span class="k">in</span> <span class="n">0</span> <span class="o">..</span> <span class="i">renditionsCount</span> <span class="o">-</span> <span class="n">1</span> <span class="k">do</span> 
+            <span class="k">let!</span> <span class="i">result</span> <span class="o">=</span> <span class="i">results</span><span class="o">.</span><span class="i">AsyncGet</span>()
+            <span class="k">yield</span> <span class="i">result</span>
+    }
+    <span class="o">|&gt;</span> <span class="i">AsyncSeq</span><span class="o">.</span><span class="i">toArrayAsync</span>
+    <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs3', 17)" onmouseover="showTip(event, 'fs3', 17)" class="i">Async</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs10', 18)" onmouseover="showTip(event, 'fs10', 18)" class="i">RunSynchronously</span>
+</code></pre></td>
+</tr>
+</table>
+<p>We can imagine <code>callService</code> to be a function that makes the actual http call to a web service.</p>
+<p>The <code>process</code> function takes two parametrs: machine (server) name, and input.
+It constructs a proper requests and fires it towards destination server.</p>
+<p>Most important part comes in <code>renditions</code> function:</p>
+<ul>
+<li>the function takes a list of machines and inputs as its parameters</li>
+<li><code>workersCount</code> stands for the maximum amount of computations performed on a single server</li>
+<li><code>renditionsCount</code> is just the number of inputs to process</li>
+<li><code>asyncSeq</code> starts an <a href="http://fsprojects.github.io/FSharp.Control.AsyncSeq/index.html">Async Sequence</a> computation expression</li>
+<li>
+inside the computation expression, there are two queues: one for computations and the other for actual results of those computations
+<ul>
+<li>the queues are of type <code>BlockingQueueAgent</code> - this type from <a href="http://fsprojects.github.io/FSharpx.Async/index.html">FSharpx.Async</a> library implements queue as an agent in blocking fashion</li>
+<li>they allow us to keep track of requests yet to be processed, as well as already processed results</li>
+</ul>
+</li>
+<li>
+recursive <code>worker</code> function (inspired by <a href="https://github.com/tpetricek/FSharp.AsyncExtensions/blob/master/samples/Crawler.fsx#L92-L123">this</a> excerpt):
+<ul>
+<li>is parametrized by <code>machine</code> argument</li>
+<li>extracts a pending request from <code>queue</code></li>
+<li>processes the result</li>
+<li>adds the result to <code>result</code> queue</li>
+<li>recursively invokes itself to process another request</li>
+<li>all of above actions are performed asynchronously</li>
+</ul>
+</li>
+<li>
+the <code>asyncSeq</code> computation expression ends with following three iterations:
+<ul>
+<li>each input is added to the <code>queue</code></li>
+<li>specified amount of workers are fired (based on <code>workersCount</code>) for each machine</li>
+<li>the results are <code>yielded</code> from the <code>results</code> queue - we expect precisely <code>renditionsCount</code> outputs</li>
+</ul>
+</li>
+<li>return value of the computation expression is finally "piped" (<code>|&gt;</code>) to <code>Async</code> combinators, so that the return type of <code>renditions</code> function is just an array of results (not wrapped inside <code>Async</code>)</li>
+</ul>
+<p>Above code managed to meet my expectations - load balance was performed dynamically, based on server capacity at a specific point in time.
+Unfortunately I haven't made any benchmarks to measure the speedup, but at least I observed that those faster servers were not idle anymore, and didn't have to wait for others to complete their computations.</p>
+<h2>Links</h2>
+<p>For further reading, I'd like to mention again a couple of resources I used when implementing the solution:</p>
+<ul>
+<li><a href="http://fsprojects.github.io/FSharp.Control.AsyncSeq/index.html">FSharp.Control.AsyncSeq</a></li>
+<li><a href="http://fsprojects.github.io/FSharpx.Async/index.html">FSharpx.Async</a></li>
+<li><a href="http://tomasp.net/blog/async-sequences.aspx/">Tomas Petricek's blog post on programming with asynchronous sequences</a></li>
+<li><a href="https://github.com/tpetricek/FSharp.AsyncExtensions/blob/master/samples/Crawler.fsx#L92-L123">Example of web crawler which also make use of <code>BlockingQueueAgent</code></a></li>
+</ul>
+
+<div class="tip" id="fs1">namespace Microsoft.FSharp</div>
+<div class="tip" id="fs2">namespace Microsoft.FSharp.Control</div>
+<div class="tip" id="fs3">Multiple items<br />type Async<br />static member AsBeginEnd : computation:(&#39;Arg -&gt; Async&lt;&#39;T&gt;) -&gt; (&#39;Arg * AsyncCallback * obj -&gt; IAsyncResult) * (IAsyncResult -&gt; &#39;T) * (IAsyncResult -&gt; unit)<br />static member AwaitEvent : event:IEvent&lt;&#39;Del,&#39;T&gt; * ?cancelAction:(unit -&gt; unit) -&gt; Async&lt;&#39;T&gt; (requires delegate and &#39;Del :&gt; Delegate)<br />static member AwaitIAsyncResult : iar:IAsyncResult * ?millisecondsTimeout:int -&gt; Async&lt;bool&gt;<br />static member AwaitTask : task:Task -&gt; Async&lt;unit&gt;<br />static member AwaitTask : task:Task&lt;&#39;T&gt; -&gt; Async&lt;&#39;T&gt;<br />static member AwaitWaitHandle : waitHandle:WaitHandle * ?millisecondsTimeout:int -&gt; Async&lt;bool&gt;<br />static member CancelDefaultToken : unit -&gt; unit<br />static member Catch : computation:Async&lt;&#39;T&gt; -&gt; Async&lt;Choice&lt;&#39;T,exn&gt;&gt;<br />static member FromBeginEnd : beginAction:(AsyncCallback * obj -&gt; IAsyncResult) * endAction:(IAsyncResult -&gt; &#39;T) * ?cancelAction:(unit -&gt; unit) -&gt; Async&lt;&#39;T&gt;<br />static member FromBeginEnd : arg:&#39;Arg1 * beginAction:(&#39;Arg1 * AsyncCallback * obj -&gt; IAsyncResult) * endAction:(IAsyncResult -&gt; &#39;T) * ?cancelAction:(unit -&gt; unit) -&gt; Async&lt;&#39;T&gt;<br />static member FromBeginEnd : arg1:&#39;Arg1 * arg2:&#39;Arg2 * beginAction:(&#39;Arg1 * &#39;Arg2 * AsyncCallback * obj -&gt; IAsyncResult) * endAction:(IAsyncResult -&gt; &#39;T) * ?cancelAction:(unit -&gt; unit) -&gt; Async&lt;&#39;T&gt;<br />static member FromBeginEnd : arg1:&#39;Arg1 * arg2:&#39;Arg2 * arg3:&#39;Arg3 * beginAction:(&#39;Arg1 * &#39;Arg2 * &#39;Arg3 * AsyncCallback * obj -&gt; IAsyncResult) * endAction:(IAsyncResult -&gt; &#39;T) * ?cancelAction:(unit -&gt; unit) -&gt; Async&lt;&#39;T&gt;<br />static member FromContinuations : callback:((&#39;T -&gt; unit) * (exn -&gt; unit) * (OperationCanceledException -&gt; unit) -&gt; unit) -&gt; Async&lt;&#39;T&gt;<br />static member Ignore : computation:Async&lt;&#39;T&gt; -&gt; Async&lt;unit&gt;<br />static member OnCancel : interruption:(unit -&gt; unit) -&gt; Async&lt;IDisposable&gt;<br />static member Parallel : computations:seq&lt;Async&lt;&#39;T&gt;&gt; -&gt; Async&lt;&#39;T []&gt;<br />static member RunSynchronously : computation:Async&lt;&#39;T&gt; * ?timeout:int * ?cancellationToken:CancellationToken -&gt; &#39;T<br />static member Sleep : millisecondsDueTime:int -&gt; Async&lt;unit&gt;<br />static member Start : computation:Async&lt;unit&gt; * ?cancellationToken:CancellationToken -&gt; unit<br />static member StartAsTask : computation:Async&lt;&#39;T&gt; * ?taskCreationOptions:TaskCreationOptions * ?cancellationToken:CancellationToken -&gt; Task&lt;&#39;T&gt;<br />static member StartChild : computation:Async&lt;&#39;T&gt; * ?millisecondsTimeout:int -&gt; Async&lt;Async&lt;&#39;T&gt;&gt;<br />static member StartChildAsTask : computation:Async&lt;&#39;T&gt; * ?taskCreationOptions:TaskCreationOptions -&gt; Async&lt;Task&lt;&#39;T&gt;&gt;<br />static member StartImmediate : computation:Async&lt;unit&gt; * ?cancellationToken:CancellationToken -&gt; unit<br />static member StartWithContinuations : computation:Async&lt;&#39;T&gt; * continuation:(&#39;T -&gt; unit) * exceptionContinuation:(exn -&gt; unit) * cancellationContinuation:(OperationCanceledException -&gt; unit) * ?cancellationToken:CancellationToken -&gt; unit<br />static member SwitchToContext : syncContext:SynchronizationContext -&gt; Async&lt;unit&gt;<br />static member SwitchToNewThread : unit -&gt; Async&lt;unit&gt;<br />static member SwitchToThreadPool : unit -&gt; Async&lt;unit&gt;<br />static member TryCancelled : computation:Async&lt;&#39;T&gt; * compensation:(OperationCanceledException -&gt; unit) -&gt; Async&lt;&#39;T&gt;<br />static member CancellationToken : Async&lt;CancellationToken&gt;<br />static member DefaultCancellationToken : CancellationToken<br /><br />Full name: Microsoft.FSharp.Control.Async<br /><br />--------------------<br />type Async&lt;&#39;T&gt;<br /><br />Full name: Microsoft.FSharp.Control.Async&lt;_&gt;</div>
+<div class="tip" id="fs4">namespace System</div>
+<div class="tip" id="fs5">val sprintf : format:Printf.StringFormat&lt;&#39;T&gt; -&gt; &#39;T<br /><br />Full name: Microsoft.FSharp.Core.ExtraTopLevelOperators.sprintf</div>
+<div class="tip" id="fs6">val async : AsyncBuilder<br /><br />Full name: Microsoft.FSharp.Core.ExtraTopLevelOperators.async</div>
+<div class="tip" id="fs7">Multiple items<br />val string : value:&#39;T -&gt; string<br /><br />Full name: Microsoft.FSharp.Core.Operators.string<br /><br />--------------------<br />type string = System.String<br /><br />Full name: Microsoft.FSharp.Core.string</div>
+<div class="tip" id="fs8">type &#39;T list = List&lt;&#39;T&gt;<br /><br />Full name: Microsoft.FSharp.Collections.list&lt;_&gt;</div>
+<div class="tip" id="fs9">static member Async.Start : computation:Async&lt;unit&gt; * ?cancellationToken:System.Threading.CancellationToken -&gt; unit</div>
+<div class="tip" id="fs10">static member Async.RunSynchronously : computation:Async&lt;&#39;T&gt; * ?timeout:int * ?cancellationToken:System.Threading.CancellationToken -&gt; &#39;T</div>
+
+  
+  <div id="disqus_thread"></div>
+    <script>
+        var disqus_config = function () {
+            this.page.url = "http://theimowski.com/blog/2016/04-27-dynamic-load-balancing-in-f/index.html";
+            this.page.identifier = "2016/04-27-dynamic-load-balancing-in-f";
+        };
+        (function() {  // DON'T EDIT BELOW THIS LINE
+            var d = document, s = d.createElement('script');
+            
+            s.src = '//theimowski.disqus.com/embed.js';
+            
+            s.setAttribute('data-timestamp', +new Date());
+            (d.head || d.body).appendChild(s);
+        })();
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+</div>
+      </div>
+    </div>
+
+    <label for="sidebar-checkbox" class="sidebar-toggle"></label>
+
+    <script>
+      (function(document) {
+        var toggle = document.querySelector('.sidebar-toggle');
+        var sidebar = document.querySelector('#sidebar');
+        var checkbox = document.querySelector('#sidebar-checkbox');
+
+        document.addEventListener('click', function(e) {
+          var target = e.target;
+
+          if(!checkbox.checked ||
+             sidebar.contains(target) ||
+             (target === checkbox || target === toggle)) return;
+
+          checkbox.checked = false;
+        }, false);
+      })(document);
+    </script>
+  </body>
+</html>
