@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+  <head>
+    <link href="http://gmpg.org/xfn/11" rel="profile">
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  
+    <!-- Enable responsiveness on mobile devices-->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+  
+    <title>Paket workflow for testing new NuGet package before release</title>
+  
+    <!-- CSS -->
+    <link rel="stylesheet" href="/css/poole.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/lanyon.css">
+    <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=PT+Serif:400,400italic,700|PT+Sans:400">
+    
+    <!-- FSharp.Formatting Styles -->
+    <link rel="stylesheet" type="text/css" media="screen" href="/fsharp.formatting/tooltips.css" />
+  	<script type="text/javascript" src="/fsharp.formatting/tooltips.js"></script>
+    <script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+      
+    <!-- Icons -->
+    <link rel="apple-touch-icon" sizes="57x57" href="/apple-touch-icon-57x57.png">
+    <link rel="apple-touch-icon" sizes="60x60" href="/apple-touch-icon-60x60.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="/apple-touch-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="76x76" href="/apple-touch-icon-76x76.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="/apple-touch-icon-114x114.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="/apple-touch-icon-120x120.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="/apple-touch-icon-144x144.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="/apple-touch-icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon-180x180.png">
+    <link rel="icon" type="image/png" href="/favicon-32x32.png" sizes="32x32">
+    <link rel="icon" type="image/png" href="/android-chrome-192x192.png" sizes="192x192">
+    <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96">
+    <link rel="icon" type="image/png" href="/favicon-16x16.png" sizes="16x16">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+    <meta name="msapplication-TileColor" content="#da532c">
+    <meta name="msapplication-TileImage" content="/mstile-144x144.png">
+    <meta name="theme-color" content="#ffffff">
+  
+    <style type="text/css">
+      table.pre td {
+        border: none;
+      }
+      
+      table.pre code {
+        font: 9pt 'Droid Sans Mono',consolas,monospace;
+      }
+    </style>
+    
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+    
+      ga('create', 'UA-71283003-1', 'auto');
+      ga('send', 'pageview');
+    
+    </script>
+  
+  </head>
+  <body>
+    <input type="checkbox" class="sidebar-checkbox" id="sidebar-checkbox">
+
+    <div class="sidebar" id="sidebar">
+      <div class="sidebar-item">
+        <p>My website - place where I share thoughts on programming</p>
+      </div>
+    
+      <nav class="sidebar-nav">
+        <a class="sidebar-nav-item" href="/blog/index.html">Blog</a>
+        <a class="sidebar-nav-item" href="/about/index.html">About me</a>
+      </nav>
+    
+      <div class="sidebar-item">
+        <p>Created with <a target="_blank" href="https://github.com/fsprojects/FsBlog">FsBlog</a> and <a target="_blank" href="http://lanyon.getpoole.com/">Lanyon</a></p>
+        <p>&copy; Tomasz Heimowski, 2015.</p>
+      </div>
+
+    </div>
+
+    <div class="wrap">
+      <div class="masthead">
+        <div class="container">
+
+          <h3 class="masthead-title">
+            <a href="/index.html" title="Home">Tomasz Heimowski</a>
+          </h3>
+        </div>
+      </div>
+
+      <div class="container content">
+        
+
+<div class="post">
+  <h1 class="post-title">Paket workflow for testing new NuGet package before release</h1>
+  
+<p>Modularity is becoming more and more popular nowadays.
+Managing separately maintained components in .NET ecosystem is usually achieved by using <strong>NuGet</strong> packages.
+Unfortunately with current NuGet approach, there's no easy way of testing new changes in referenced projects.
+Today I want to show you how we can make our lifes easier with brand new <a href="http://fsprojects.github.io/Paket/">Paket</a> feature: <a href="http://fsprojects.github.io/Paket/local-file.html">paket.local</a>.</p>
+<!--more-->
+<h2>The story</h2>
+<p>Let's imagine that there's an awesome library available on NuGet.
+It's called <code>ToyPaketCalculator</code> (<a href="https://www.nuget.org/packages/ToyPaketCalculator/0.0.1-beta">link</a>) and it allows to add or multiply two integer numbers.
+The library got very popular, and everyone is now using it to perform complex calculations.</p>
+<p>We decide to use it for our new project called <code>CalculatorClient</code> as well.
+It works quite nicely and after a while we come up with idea for a new feature in <code>ToyPaketCalculator</code>.
+The new feature would allow one to substract two integers.
+To make the dreams come true, we want to contribute to <code>ToyPaketCalculator</code>, but ideally we'd like to test the new feature against our <code>Calculatorclient</code> application before submitting a Pull Request.</p>
+<h2>Calculator Client project</h2>
+<p>Our new <code>CalculatorClient</code> project will be a simple console app written in C# - create one with your favourite editor / IDE.
+To pull the <code>ToyPaketCalculator</code> package we'll use <a href="http://fsprojects.github.io/Paket/">Paket</a>.</p>
+<p>First, we need to <a href="https://github.com/fsprojects/Paket/releases/latest">download paket.bootstrapper</a> and save it in <code>.paket</code> directory in the root of our codebase.</p>
+<p>Next, we invoke a couple of paket commands from the command line (see also a <a href="http://fsprojects.github.io/Paket/editor-support.html">list of editor plugins</a> if not comfortable with CLI):</p>
+<h3>Download Paket</h3>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip"><code lang="bash">$ .paket\paket.bootstrapper.exe prerelease
+</code></pre></td></tr></table>
+<p>Above command will download a <strong>prerelease</strong> (as of the time of writing) version of Paket, which is 3.0.0-beta and which contains the new feature described in this post.</p>
+<h3>Init Paket</h3>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip"><code lang="bash">$ .paket\paket.exe init
+</code></pre></td></tr></table>
+<p>Init command will initialize our codebase for Paket usage, i.e. it will create a basic <code>paket.dependencies</code> file.</p>
+<h3>Install ToyPaketCalculator package</h3>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip"><code lang="bash">$ .paket\paket.exe add nuget ToyPaketCalculator -i
+</code></pre></td></tr></table>
+<p>This command will add <code>ToyPaketCalculator</code> package to our <code>paket.dependencies</code> and in interactive mode (<code>-i</code> flag) will ask whether we want to add the package to available projects within our codebase. Prompt to install the package to console project:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+<span class="l">2: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip"><code lang="bash">Install to c:\github\ToyPaketCalculatorClient\ToyPaketCalculatorClient\ToyPaketCalculatorClient.csproj into group Main?
+    [Y]es/[N]o =&gt; Y
+</code></pre></td></tr></table>
+<p>Now we can use the package in our console app:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l"> 1: </span>
+<span class="l"> 2: </span>
+<span class="l"> 3: </span>
+<span class="l"> 4: </span>
+<span class="l"> 5: </span>
+<span class="l"> 6: </span>
+<span class="l"> 7: </span>
+<span class="l"> 8: </span>
+<span class="l"> 9: </span>
+<span class="l">10: </span>
+<span class="l">11: </span>
+<span class="l">12: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="csharp"><span class="k">using</span> System;
+
+<span class="k">namespace</span> ToyPaketCalculatorClient
+{
+    <span class="k">class</span> Program
+    {
+        <span class="k">static</span> <span class="k">void</span> Main(<span class="k">string</span>[] args)
+        {
+            Console.WriteLine(ToyPaketCalculator.Calculator.add(<span class="n">3</span>, <span class="n">5</span>));
+        }
+    }
+}
+</code></pre></td></tr></table>
+<p>Running this program should result in printing "8" to the console:</p>
+<p><img src="8.png" alt="8" /></p>
+<p>If we however switch <code>add</code> to <code>substract</code>, we won't be able to compile - the function is not yet implemented:</p>
+<p><img src="no_substract.png" alt="no substract" /></p>
+<h2>Clone ToyPaketCalculator Project</h2>
+<p>Now, in order to add the new feature to <code>ToyPaketCalculator</code>, we first need to pull down its sources:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip"><code lang="bash">$ git clone https://github.com/theimowski/ToyPaketCalculator.git
+</code></pre></td></tr></table>
+<p>Solution file for this project resides in the root of the repository.</p>
+<h2>Add new feature to ToyPaketCalculator</h2>
+<p>It's usually a good practice to create separate branch per each feature we're working on.
+For that reason let's open a new branch in <code>ToyCalculatorProject</code>:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip"><code lang="bash">$ git checkout -b new_feature
+</code></pre></td></tr></table>
+<p>Now we're ready to implement our beloved <code>substract</code> function.
+Turns out that the project is written in F#, but hey even if you don't know the language don't give up - it should be rather easy:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+<span class="l">4: </span>
+<span class="l">5: </span>
+<span class="l">6: </span>
+<span class="l">7: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">module</span> <span class="i">ToyPaketCalculator</span><span class="o">.</span><span class="i">Calculator</span>
+
+<span class="k">let</span> <span class="i">add</span> <span class="i">x</span> <span class="i">y</span> <span class="o">=</span> <span class="i">x</span> <span class="o">+</span> <span class="i">y</span>
+
+<span class="k">let</span> <span class="i">mult</span> <span class="i">x</span> <span class="i">y</span> <span class="o">=</span> <span class="i">x</span> <span class="o">*</span> <span class="i">y</span>
+
+<span class="k">let</span> <span class="i">substract</span> <span class="i">x</span> <span class="i">y</span> <span class="o">=</span> <span class="i">x</span> <span class="o">-</span> <span class="i">y</span>
+</code></pre></td>
+</tr>
+</table>
+<p>(<code>src\ToyPaketCalculator\Library.fs</code>)</p>
+<p>We can commit our changes:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip"><code lang="bash">$ git commit -am "implement substract function"
+</code></pre></td></tr></table>
+<p>Fine, but how can we test <code>substract</code> function from our <code>CalculatorClient</code> now?
+We surely don't want end up creating a pull request only to later find out that our implementation was buggy.</p>
+<blockquote>
+<p>Note: Normally in this case we would add appropriate automated tests to the <code>ToyPaketCalculator</code> project to verify the behavior, however keep in mind above example is only for demonstration purposes and in practical use cases stuff might not be that easy to test in isolation, and/or we would like to test it from the referencing project anyway.</p>
+</blockquote>
+<h2>paket.local to the rescue!</h2>
+<p>Let's navigate back to our <code>CalculatorClient</code> project and create <code>paket.local</code> file with a single line:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="paket"><span class="k">nuget </span>ToyPaketCalculator -<span class="o">&gt;</span> <span class="k">git </span>file:///c:\github\ToyPaketCalculator new_feature build:<span class="s">"build.cmd NuGet"</span>, Packages: /bin/
+</code></pre></td></tr></table>
+<p>Above line stands for source override.
+Splliting it to parts:</p>
+<ul>
+<li><code>nuget ToyPaketCalulator</code> token identifies NuGet package that the override corresponds to,</li>
+<li><code>-&gt;</code> splits the package id (left side) and actual override (right side),</li>
+<li><code>git</code> relates to <a href="http://fsprojects.github.io/Paket/git-dependencies.html#Using-Git-repositories-as-NuGet-source">git dependency</a> feature,</li>
+<li><code>file:///c:\github\ToyPaketCalculator</code> points to a local directory - place where we cloned the project,</li>
+<li><code>new_feature</code> is the name of the branch to be used from <code>ToyPaketCalculator</code> project,</li>
+<li><code>build:"build.cmd NuGet"</code> denotes a single-line build command, which produces a NuGet package (<code>.nupkg</code>),</li>
+<li><code>Packages: /bin/</code> points to a directory within the referenced project where the <code>.nupkg</code> file should be located after <code>build.cmd NuGet</code> succeeds.</li>
+</ul>
+<blockquote>
+<p>Note: don't forget to add <code>paket.local</code> to <code>.gitignore</code>- we don't want to keep track and share with other team members our local file paths!</p>
+</blockquote>
+<p>Now when we invoke <code>paket restore</code>, we get the following:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+<span class="l">4: </span>
+<span class="l">5: </span>
+<span class="l">6: </span>
+<span class="l">7: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip"><code lang="bash">$ .paket\paket.exe restore
+Paket version 3.0.0.0
+paket.local override: nuget ToyPaketCalculator -&gt; file:///c:\github\ToyPaketCalculator new_feature build:"build.cmd NuGet", Packages: /bin/
+Cloning file:///c:\github\ToyPaketCalculator to C:\Users\tomasz.heimowski\.paket\git\db\ToyPaketCalculator
+Setting c:\github\ToyPaketCalculatorClient\paket-files\localfilesystem\ToyPaketCalculator to e16e10eca854a61f586945181aa45e65e0059aa1
+Running "c:\github\ToyPaketCalculatorClient\paket-files\localfilesystem\ToyPaketCalculator\build.cmd NuGet"
+50 seconds - ready.
+</code></pre></td></tr></table>
+<p>In third line we can see that Paket warns us about the override.
+This is to remind us that the package used during restore has been taken from a source other than the one pinned in <code>paket.lock</code>.</p>
+<h2>Test new feature</h2>
+<p>After successful restore with overriden <code>ToyPaketCalculator</code> package, we can test the new NuGet package even though it has not been released anywhere yet.
+Paket handles <code>.nupkg</code> archive extraction for us, so all we have to do is move to the <code>Program.cs</code> file and invoke <code>substract</code> function - code should now compile just fine:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l"> 1: </span>
+<span class="l"> 2: </span>
+<span class="l"> 3: </span>
+<span class="l"> 4: </span>
+<span class="l"> 5: </span>
+<span class="l"> 6: </span>
+<span class="l"> 7: </span>
+<span class="l"> 8: </span>
+<span class="l"> 9: </span>
+<span class="l">10: </span>
+<span class="l">11: </span>
+<span class="l">12: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="csharp"><span class="k">using</span> System;
+
+<span class="k">namespace</span> ToyPaketCalculatorClient
+{
+    <span class="k">class</span> Program
+    {
+        <span class="k">static</span> <span class="k">void</span> Main(<span class="k">string</span>[] args)
+        {
+            Console.WriteLine(ToyPaketCalculator.Calculator.substract(<span class="n">3</span>, <span class="n">5</span>));
+        }
+    }
+}
+</code></pre></td></tr></table>
+<p>Running modified program should print expected result to the output:</p>
+<p><img src="minus_2.png" alt="minus 2" /></p>
+<h2>Create pull request / release</h2>
+<p>Now that we are confident with the change, we can create a pull request to the referenced project.
+In case we own the referenced project, then we can simply release new version</p>
+<blockquote>
+<p>Note: if you have just rolled out a new project you might want to check out how releases can be a piece of cake with the cool <a href="http://fsprojects.github.io/ProjectScaffold/release-process.html">ProjectScaffold</a></p>
+</blockquote>
+<p>Hopefully the workflow I've described in this post can help .NET devs maintain their components and save plenty of time, which otherwise would be wasted on manual copying of binaries or watching failing builds on CI servers.</p>
+<p>If you find any issue / bug in <code>paket.local</code> feature, please create a corresponding issue in <a href="https://github.com/fsprojects/Paket/issues">Paket</a>.</p>
+<p>Below are links to github repos for both <code>ToyPaketCalculator</code> as well as the client project:</p>
+<ul>
+<li><a href="https://github.com/theimowski/ToyPaketCalculator">https://github.com/theimowski/ToyPaketCalculator</a></li>
+<li><a href="https://github.com/theimowski/ToyPaketCalculatorClient">https://github.com/theimowski/ToyPaketCalculatorClient</a></li>
+</ul>
+<p>Till next time!</p>
+
+
+  
+  <div id="disqus_thread"></div>
+    <script>
+        var disqus_config = function () {
+            this.page.url = "http://theimowski.com/blog/2016/05-19-paket-workflow-for-testing-new-nuget-package-before-release/index.html";
+            this.page.identifier = "2016/05-19-paket-workflow-for-testing-new-nuget-package-before-release";
+        };
+        (function() {  // DON'T EDIT BELOW THIS LINE
+            var d = document, s = d.createElement('script');
+            
+            s.src = '//theimowski.disqus.com/embed.js';
+            
+            s.setAttribute('data-timestamp', +new Date());
+            (d.head || d.body).appendChild(s);
+        })();
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+</div>
+      </div>
+    </div>
+
+    <label for="sidebar-checkbox" class="sidebar-toggle"></label>
+
+    <script>
+      (function(document) {
+        var toggle = document.querySelector('.sidebar-toggle');
+        var sidebar = document.querySelector('#sidebar');
+        var checkbox = document.querySelector('#sidebar-checkbox');
+
+        document.addEventListener('click', function(e) {
+          var target = e.target;
+
+          if(!checkbox.checked ||
+             sidebar.contains(target) ||
+             (target === checkbox || target === toggle)) return;
+
+          checkbox.checked = false;
+        }, false);
+      })(document);
+    </script>
+  </body>
+</html>

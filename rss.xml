@@ -5,6 +5,19 @@
     <description>FsBlog aims to be a blog-aware static site generator, mostly built in F#. But don't worry, you won't even need to know any F# to get up and running. So long as you are comfortable using a command line or terminal, and have a degree of familiarity with Markdown and Razor syntax - you're good to go!
 </description>
     <item>
+      <title>Paket workflow for testing new NuGet package before release</title>
+      <guid>http://theimowski.com//blog/2016/05-19-paket-workflow-for-testing-new-nuget-package-before-release</guid>
+      <link>http://theimowski.com//blog/2016/05-19-paket-workflow-for-testing-new-nuget-package-before-release/index.html</link>
+      <pubDate>Sat, 21 May 2016 06:45:31 GMT</pubDate>
+      <description>&lt;p&gt;Modularity is becoming more and more popular nowadays.
+Managing separately maintained components in .NET ecosystem is usually achieved by using &lt;strong&gt;NuGet&lt;/strong&gt; packages.
+Unfortunately with current NuGet approach, there's no easy way of testing new changes in referenced projects.
+Today I want to show you how we can make our lifes easier with brand new &lt;a href="http://fsprojects.github.io/Paket/"&gt;Paket&lt;/a&gt; feature: &lt;a href="http://fsprojects.github.io/Paket/local-file.html"&gt;paket.local&lt;/a&gt;.&lt;/p&gt;
+
+
+</description>
+    </item>
+    <item>
       <title>Dynamic load balancing in F#</title>
       <guid>http://theimowski.com//blog/2016/04-27-dynamic-load-balancing-in-f</guid>
       <link>http://theimowski.com//blog/2016/04-27-dynamic-load-balancing-in-f/index.html</link>
