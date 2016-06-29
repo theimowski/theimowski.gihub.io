@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+  <head>
+    <link href="http://gmpg.org/xfn/11" rel="profile">
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  
+    <!-- Enable responsiveness on mobile devices-->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+  
+    <title>XSLT - Implicit vs Explicit processing</title>
+  
+    <!-- CSS -->
+    <link rel="stylesheet" href="/css/poole.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/lanyon.css">
+    <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=PT+Serif:400,400italic,700|PT+Sans:400">
+    
+    <!-- FSharp.Formatting Styles -->
+    <link rel="stylesheet" type="text/css" media="screen" href="/fsharp.formatting/tooltips.css" />
+  	<script type="text/javascript" src="/fsharp.formatting/tooltips.js"></script>
+    <script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+      
+    <!-- Icons -->
+    <link rel="apple-touch-icon" sizes="57x57" href="/apple-touch-icon-57x57.png">
+    <link rel="apple-touch-icon" sizes="60x60" href="/apple-touch-icon-60x60.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="/apple-touch-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="76x76" href="/apple-touch-icon-76x76.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="/apple-touch-icon-114x114.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="/apple-touch-icon-120x120.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="/apple-touch-icon-144x144.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="/apple-touch-icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon-180x180.png">
+    <link rel="icon" type="image/png" href="/favicon-32x32.png" sizes="32x32">
+    <link rel="icon" type="image/png" href="/android-chrome-192x192.png" sizes="192x192">
+    <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96">
+    <link rel="icon" type="image/png" href="/favicon-16x16.png" sizes="16x16">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+    <meta name="msapplication-TileColor" content="#da532c">
+    <meta name="msapplication-TileImage" content="/mstile-144x144.png">
+    <meta name="theme-color" content="#ffffff">
+  
+    <style type="text/css">
+      table.pre td {
+        border: none;
+      }
+      
+      table.pre code {
+        font: 9pt 'Droid Sans Mono',consolas,monospace;
+      }
+    </style>
+    
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+    
+      ga('create', 'UA-71283003-1', 'auto');
+      ga('send', 'pageview');
+    
+    </script>
+  
+  </head>
+  <body>
+    <input type="checkbox" class="sidebar-checkbox" id="sidebar-checkbox">
+
+    <div class="sidebar" id="sidebar">
+      <div class="sidebar-item">
+        <p>My website - place where I share thoughts on programming</p>
+      </div>
+    
+      <nav class="sidebar-nav">
+        <a class="sidebar-nav-item" href="/blog/index.html">Blog</a>
+        <a class="sidebar-nav-item" href="/about/index.html">About me</a>
+      </nav>
+    
+      <div class="sidebar-item">
+        <p>Created with <a target="_blank" href="https://github.com/fsprojects/FsBlog">FsBlog</a> and <a target="_blank" href="http://lanyon.getpoole.com/">Lanyon</a></p>
+        <p>&copy; Tomasz Heimowski, 2015.</p>
+      </div>
+
+    </div>
+
+    <div class="wrap">
+      <div class="masthead">
+        <div class="container">
+
+          <h3 class="masthead-title">
+            <a href="/index.html" title="Home">Tomasz Heimowski</a>
+          </h3>
+        </div>
+      </div>
+
+      <div class="container content">
+        
+
+<div class="post">
+  <h1 class="post-title">XSLT - Implicit vs Explicit processing</h1>
+  
+<p>In this first of a series of posts about XSLT (hopefully to come), I'd like to share my thoughts on 2 different approaches to processing XML documents. From a shorter and <strong>implicit</strong> version I will transit to a bit longer and <strong>explicit</strong> transform, with the latter being easier to reason about. What are the costs of trade?</p>
+<!--more-->
+<h2>Input</h2>
+<p>Let's imagine we are given a XML document with a pretty straight-forward structure like following:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+<span class="l">4: </span>
+<span class="l">5: </span>
+<span class="l">6: </span>
+<span class="l">7: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="xml"><span class="k">&lt;</span><span class="i">root</span><span class="k">&gt;</span>
+    <span class="k">&lt;</span><span class="i">a</span><span class="k">/&gt;</span>
+    <span class="k">&lt;</span><span class="i">b</span><span class="k">/&gt;</span>
+    <span class="k">&lt;</span><span class="i">a</span><span class="k">/&gt;</span>
+    <span class="k">&lt;</span><span class="i">b</span><span class="k">/&gt;</span>
+    <span class="k">&lt;</span><span class="i">a</span> <span class="o">lang</span><span class="k">="it"</span><span class="k">/&gt;</span>
+<span class="k">&lt;/</span><span class="i">root</span><span class="k">&gt;</span>
+</code></pre></td></tr></table>
+<p>We want to transform it so that each letter corresponds to a number:</p>
+<h2>Output</h2>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+<span class="l">4: </span>
+<span class="l">5: </span>
+<span class="l">6: </span>
+<span class="l">7: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="xml"><span class="k">&lt;</span><span class="i">root</span><span class="k">&gt;</span>
+    <span class="k">&lt;</span><span class="i">one</span><span class="k">/&gt;</span>
+    <span class="k">&lt;</span><span class="i">two</span><span class="k">/&gt;</span>
+    <span class="k">&lt;</span><span class="i">one</span><span class="k">/&gt;</span>
+    <span class="k">&lt;</span><span class="i">two</span><span class="k">/&gt;</span>
+    <span class="k">&lt;</span><span class="i">uno</span><span class="k">/&gt;</span>
+<span class="k">&lt;/</span><span class="i">root</span><span class="k">&gt;</span>
+</code></pre></td></tr></table>
+<p>This way we have a kind of mapping where <code>a -&gt; one</code>, <code>b -&gt; two</code>, <code>c -&gt; three</code> etc.
+On top of that we'd like to add support for multi-culture, and e.g. <code>lang="it"</code> attribute should output the number in italian (<code>uno</code>).</p>
+<h2>Identity transform</h2>
+<p>We can start with an <a href="http://www.usingxml.com/Transforms/XslIdentity">identity transform</a> - a generic XSLT transform which basically copies the input XML document to the output:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+<span class="l">4: </span>
+<span class="l">5: </span>
+<span class="l">6: </span>
+<span class="l">7: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="xml"><span class="k">&lt;</span><span class="i">xsl:stylesheet</span> <span class="o">version</span><span class="k">="1.0"</span> <span class="o">xmlns:xsl</span><span class="k">="http://www.w3.org/1999/XSL/Transform"</span><span class="k">&gt;</span>
+    <span class="k">&lt;</span><span class="i">xsl:template</span> <span class="o">match</span><span class="k">="@*|node()"</span><span class="k">&gt;</span>
+        <span class="k">&lt;</span><span class="i">xsl:copy</span><span class="k">&gt;</span>
+            <span class="k">&lt;</span><span class="i">xsl:apply-templates</span> <span class="o">select</span><span class="k">="@*|node()"</span> <span class="k">/&gt;</span>
+        <span class="k">&lt;/</span><span class="i">xsl:copy</span><span class="k">&gt;</span>
+    <span class="k">&lt;/</span><span class="i">xsl:template</span><span class="k">&gt;</span>
+<span class="k">&lt;/</span><span class="i">xsl:stylesheet</span><span class="k">&gt;</span>
+</code></pre></td></tr></table>
+<blockquote>
+<p>Note: If you're unfamiliar with any of the XSLT language concepts used throughout this post, you can refer to the <a href="http://www.w3schools.com/xsl/">W3C documentation on XSLT</a>.</p>
+</blockquote>
+<p>The identity transform works fine for the <code>root</code> element of our XML document.
+However, we need to extend the transform to process appropriately letter elements:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l"> 1: </span>
+<span class="l"> 2: </span>
+<span class="l"> 3: </span>
+<span class="l"> 4: </span>
+<span class="l"> 5: </span>
+<span class="l"> 6: </span>
+<span class="l"> 7: </span>
+<span class="l"> 8: </span>
+<span class="l"> 9: </span>
+<span class="l">10: </span>
+<span class="l">11: </span>
+<span class="l">12: </span>
+<span class="l">13: </span>
+<span class="l">14: </span>
+<span class="l">15: </span>
+<span class="l">16: </span>
+<span class="l">17: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="xml"><span class="k">&lt;</span><span class="i">xsl:stylesheet</span> <span class="o">version</span><span class="k">="2.0"</span> <span class="o">xmlns:xsl</span><span class="k">="http://www.w3.org/1999/XSL/Transform"</span><span class="k">&gt;</span>
+    <span class="k">&lt;</span><span class="i">xsl:output</span> <span class="o">encoding</span><span class="k">="UTF-8"</span> <span class="o">indent</span><span class="k">="yes"</span> <span class="o">method</span><span class="k">="xml"</span> <span class="o">version</span><span class="k">="1.0"</span><span class="k">/&gt;</span>
+    <span class="k">&lt;</span><span class="i">xsl:template</span> <span class="o">match</span><span class="k">="a"</span><span class="k">&gt;</span>
+        <span class="k">&lt;</span><span class="i">one</span><span class="k">/&gt;</span>
+    <span class="k">&lt;/</span><span class="i">xsl:template</span><span class="k">&gt;</span>
+    <span class="k">&lt;</span><span class="i">xsl:template</span> <span class="o">match</span><span class="k">="a[@lang = 'it']"</span><span class="k">&gt;</span>
+        <span class="k">&lt;</span><span class="i">uno</span><span class="k">/&gt;</span>
+    <span class="k">&lt;/</span><span class="i">xsl:template</span><span class="k">&gt;</span>
+    <span class="k">&lt;</span><span class="i">xsl:template</span> <span class="o">match</span><span class="k">="b"</span><span class="k">&gt;</span>
+        <span class="k">&lt;</span><span class="i">two</span><span class="k">/&gt;</span>
+    <span class="k">&lt;/</span><span class="i">xsl:template</span><span class="k">&gt;</span>
+    <span class="k">&lt;</span><span class="i">xsl:template</span> <span class="o">match</span><span class="k">="@*|node()"</span><span class="k">&gt;</span>
+        <span class="k">&lt;</span><span class="i">xsl:copy</span><span class="k">&gt;</span>
+            <span class="k">&lt;</span><span class="i">xsl:apply-templates</span> <span class="o">select</span><span class="k">="@*|node()"</span> <span class="k">/&gt;</span>
+        <span class="k">&lt;/</span><span class="i">xsl:copy</span><span class="k">&gt;</span>
+    <span class="k">&lt;/</span><span class="i">xsl:template</span><span class="k">&gt;</span>
+<span class="k">&lt;/</span><span class="i">xsl:stylesheet</span><span class="k">&gt;</span>
+</code></pre></td></tr></table>
+<p>The above XSLT adds three more templates which translate a letter to a corresponding number in literals.
+There's also a transform which matches <code>a</code> letters with <code>@lang = 'it'</code> attribute to support different language.</p>
+<p>Even though there are two templates which match <code>&lt;a lang="it"/&gt;</code> element, the latter one gets a higher priority because it is more specific.</p>
+<blockquote>
+<p>Note: above transform is just one of many different solutions - I've deliberately chosen it to show differences between what I call implicit and explicit processing in later course.</p>
+</blockquote>
+<h2>More requirements</h2>
+<p>Now that we've established our basic XSLT transform, it's time to add new features.
+First, we'd like to allow a <code>@wrap="yes"</code> attribute on any input letter element:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+<span class="l">4: </span>
+<span class="l">5: </span>
+<span class="l">6: </span>
+<span class="l">7: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="xml"><span class="k">&lt;</span><span class="i">root</span><span class="k">&gt;</span>
+    <span class="k">&lt;</span><span class="i">a</span><span class="k">/&gt;</span>
+    <span class="k">&lt;</span><span class="i">b</span><span class="k">/&gt;</span>
+    <span class="k">&lt;</span><span class="i">a</span> <span class="o">wrap</span><span class="k">="yes"</span><span class="k">/&gt;</span>
+    <span class="k">&lt;</span><span class="i">b</span> <span class="o">wrap</span><span class="k">="yes"</span><span class="k">/&gt;</span>
+    <span class="k">&lt;</span><span class="i">a</span> <span class="o">wrap</span><span class="k">="yes"</span> <span class="o">lang</span><span class="k">="it"</span><span class="k">/&gt;</span>
+<span class="k">&lt;/</span><span class="i">root</span><span class="k">&gt;</span>
+</code></pre></td></tr></table>
+<p>Such demarcation means that the output number element should be <strong>wrapped</strong> in a <code>&lt;wrapping&gt;&lt;/wrapping&gt;</code> element:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l"> 1: </span>
+<span class="l"> 2: </span>
+<span class="l"> 3: </span>
+<span class="l"> 4: </span>
+<span class="l"> 5: </span>
+<span class="l"> 6: </span>
+<span class="l"> 7: </span>
+<span class="l"> 8: </span>
+<span class="l"> 9: </span>
+<span class="l">10: </span>
+<span class="l">11: </span>
+<span class="l">12: </span>
+<span class="l">13: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="xml"><span class="k">&lt;</span><span class="i">root</span><span class="k">&gt;</span>
+    <span class="k">&lt;</span><span class="i">one</span><span class="k">/&gt;</span>
+    <span class="k">&lt;</span><span class="i">two</span><span class="k">/&gt;</span>
+    <span class="k">&lt;</span><span class="i">wrapping</span><span class="k">&gt;</span>
+        <span class="k">&lt;</span><span class="i">one</span><span class="k">/&gt;</span>
+    <span class="k">&lt;/</span><span class="i">wrapping</span><span class="k">&gt;</span>
+    <span class="k">&lt;</span><span class="i">wrapping</span><span class="k">&gt;</span>
+        <span class="k">&lt;</span><span class="i">two</span><span class="k">/&gt;</span>
+    <span class="k">&lt;/</span><span class="i">wrapping</span><span class="k">&gt;</span>
+    <span class="k">&lt;</span><span class="i">wrapping</span><span class="k">&gt;</span>
+        <span class="k">&lt;</span><span class="i">uno</span><span class="k">/&gt;</span>
+    <span class="k">&lt;/</span><span class="i">wrapping</span><span class="k">&gt;</span>
+<span class="k">&lt;/</span><span class="i">root</span><span class="k">&gt;</span>
+</code></pre></td></tr></table>
+<p>We can achieve this result by adding a new specific template to our XSLT, which makes use of the <a href="http://www.saxonica.com/html/documentation/xsl-elements/next-match.html">xsl:next-match</a> instruction. The instruction applies next (in the order of priority) matching template:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+<span class="l">4: </span>
+<span class="l">5: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="xml"><span class="k">&lt;</span><span class="i">xsl:template</span> <span class="o">match</span><span class="k">="*[@wrap = 'yes']"</span><span class="k">&gt;</span>
+    <span class="k">&lt;</span><span class="i">wrapping</span><span class="k">&gt;</span>
+        <span class="k">&lt;</span><span class="i">xsl:next-match</span><span class="k">/&gt;</span>
+    <span class="k">&lt;/</span><span class="i">wrapping</span><span class="k">&gt;</span>
+<span class="k">&lt;/</span><span class="i">xsl:template</span><span class="k">&gt;</span>
+</code></pre></td></tr></table>
+<p>But we've got an issue here.
+If we try to run the transform, it turns out that there are <strong>ambiguous rules</strong>:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+<span class="l">4: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip"><code lang="bash">Recoverable error
+  XTRE0540: Ambiguous rule match for /root/a[3]
+Matches both "a[@lang = 'it']" on line 12 of file:/c:/sandbox/xslt/implicit_alt.xslt
+and "*[@wrap = 'yes']" on line 3 of file:/c:/sandbox/xslt/implicit_alt.xslt
+</code></pre></td></tr></table>
+<p>The reason is we have two templates matching <code>&lt;a wrap="yes" lang="it"/&gt;</code> element - both have the same priority, because they are equally specific.</p>
+<p>By default, XSLT processing engines will issue a warning but ignore this error (as it's <a href="https://www.w3.org/TR/xslt20#errors">recoverable</a>), and the behavior is that the template defined later wins. This means that if we added the new template at the beginning of or XSLT file, we'd get invalid output.</p>
+<p>To fix this, we can increase the priority of the new template:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+<span class="l">4: </span>
+<span class="l">5: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="xml"><span class="k">&lt;</span><span class="i">xsl:template</span> <span class="o">match</span><span class="k">="*[@wrap = 'yes']"</span> <span class="o">priority</span><span class="k">="2"</span><span class="k">&gt;</span>
+    <span class="k">&lt;</span><span class="i">wrapping</span><span class="k">&gt;</span>
+        <span class="k">&lt;</span><span class="i">xsl:next-match</span><span class="k">/&gt;</span>
+    <span class="k">&lt;/</span><span class="i">wrapping</span><span class="k">&gt;</span>
+<span class="k">&lt;/</span><span class="i">xsl:template</span><span class="k">&gt;</span>
+</code></pre></td></tr></table>
+<p>What value should be used for the <code>@priority</code> attribute?
+It's not that easy to answer this question, as one needs to know how <strong>default priorities</strong> work.
+In our case, we can safely assume that value <code>2</code> is enough and will make the template more important than the other.</p>
+<blockquote>
+<p>Note: if you want to learn more about <strong>default priorities</strong> for XSLT templates, refer to <a href="https://www.w3.org/TR/xslt#conflict">this section of XSLT docs</a>.</p>
+</blockquote>
+<p>Next feature we'd like to implement is to allow <strong>ignoring</strong> certain elements - so that they are not processed at all:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+<span class="l">4: </span>
+<span class="l">5: </span>
+<span class="l">6: </span>
+<span class="l">7: </span>
+<span class="l">8: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="xml"><span class="k">&lt;</span><span class="i">root</span><span class="k">&gt;</span>
+    <span class="k">&lt;</span><span class="i">a</span><span class="k">/&gt;</span>
+    <span class="k">&lt;</span><span class="i">b</span><span class="k">/&gt;</span>
+    <span class="k">&lt;</span><span class="i">a</span> <span class="o">wrap</span><span class="k">="yes"</span><span class="k">/&gt;</span>
+    <span class="k">&lt;</span><span class="i">b</span> <span class="o">wrap</span><span class="k">="yes"</span><span class="k">/&gt;</span>
+    <span class="k">&lt;</span><span class="i">a</span> <span class="o">wrap</span><span class="k">="yes"</span> <span class="o">lang</span><span class="k">="it"</span><span class="k">/&gt;</span>
+    <span class="k">&lt;</span><span class="i">a</span> <span class="o">wrap</span><span class="k">="yes"</span> <span class="o">lang</span><span class="k">="it"</span> <span class="o">ignore</span><span class="k">="yes"</span><span class="k">/&gt;</span>
+<span class="k">&lt;/</span><span class="i">root</span><span class="k">&gt;</span>
+</code></pre></td></tr></table>
+<p>Above XML document should be transformed to following (note the last element is indeed ignored):</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l"> 1: </span>
+<span class="l"> 2: </span>
+<span class="l"> 3: </span>
+<span class="l"> 4: </span>
+<span class="l"> 5: </span>
+<span class="l"> 6: </span>
+<span class="l"> 7: </span>
+<span class="l"> 8: </span>
+<span class="l"> 9: </span>
+<span class="l">10: </span>
+<span class="l">11: </span>
+<span class="l">12: </span>
+<span class="l">13: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="xml"><span class="k">&lt;</span><span class="i">root</span><span class="k">&gt;</span>
+    <span class="k">&lt;</span><span class="i">one</span><span class="k">/&gt;</span>
+    <span class="k">&lt;</span><span class="i">two</span><span class="k">/&gt;</span>
+    <span class="k">&lt;</span><span class="i">wrapping</span><span class="k">&gt;</span>
+        <span class="k">&lt;</span><span class="i">one</span><span class="k">/&gt;</span>
+    <span class="k">&lt;/</span><span class="i">wrapping</span><span class="k">&gt;</span>
+    <span class="k">&lt;</span><span class="i">wrapping</span><span class="k">&gt;</span>
+        <span class="k">&lt;</span><span class="i">two</span><span class="k">/&gt;</span>
+    <span class="k">&lt;/</span><span class="i">wrapping</span><span class="k">&gt;</span>
+    <span class="k">&lt;</span><span class="i">wrapping</span><span class="k">&gt;</span>
+        <span class="k">&lt;</span><span class="i">uno</span><span class="k">/&gt;</span>
+    <span class="k">&lt;/</span><span class="i">wrapping</span><span class="k">&gt;</span>
+<span class="k">&lt;/</span><span class="i">root</span><span class="k">&gt;</span>
+</code></pre></td></tr></table>
+<p>To do this we can come up with yet another generic template - a self-closing <code>xsl-template</code> element with no content to imitate ignorance:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="xml"><span class="k">&lt;</span><span class="i">xsl:template</span> <span class="o">match</span><span class="k">="*[@ignore = 'yes']"</span><span class="k">/&gt;</span>
+</code></pre></td></tr></table>
+<p>However, we encounter the same issue again. If we tried to run the transform in this form, we'd get following error:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+<span class="l">4: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip"><code lang="bash">Recoverable error
+  XTRE0540: Ambiguous rule match for /root/a[4]
+Matches both "a[@lang = 'it']" on line 12 of file:/C:/sandbox/xslt/implicit_alt.xslt
+and "*[@ignore = 'yes']" on line 8 of file:/C:/sandbox/xslt/implicit_alt.xslt
+</code></pre></td></tr></table>
+<p>Ambiguous rule strikes again! Of course we can adjust the new template by increasing its priority:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="xml"><span class="k">&lt;</span><span class="i">xsl:template</span> <span class="o">match</span><span class="k">="*[@ignore = 'yes']"</span> <span class="o">priority</span><span class="k">="3"</span><span class="k">/&gt;</span>
+</code></pre></td></tr></table>
+<h2>Implicit processing transform</h2>
+<p>This leads us to the final look of the <strong>implicit</strong> version of transform:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l"> 1: </span>
+<span class="l"> 2: </span>
+<span class="l"> 3: </span>
+<span class="l"> 4: </span>
+<span class="l"> 5: </span>
+<span class="l"> 6: </span>
+<span class="l"> 7: </span>
+<span class="l"> 8: </span>
+<span class="l"> 9: </span>
+<span class="l">10: </span>
+<span class="l">11: </span>
+<span class="l">12: </span>
+<span class="l">13: </span>
+<span class="l">14: </span>
+<span class="l">15: </span>
+<span class="l">16: </span>
+<span class="l">17: </span>
+<span class="l">18: </span>
+<span class="l">19: </span>
+<span class="l">20: </span>
+<span class="l">21: </span>
+<span class="l">22: </span>
+<span class="l">23: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="xml"><span class="k">&lt;</span><span class="i">xsl:stylesheet</span> <span class="o">version</span><span class="k">="2.0"</span> <span class="o">xmlns:xsl</span><span class="k">="http://www.w3.org/1999/XSL/Transform"</span><span class="k">&gt;</span>
+    <span class="k">&lt;</span><span class="i">xsl:output</span> <span class="o">encoding</span><span class="k">="UTF-8"</span> <span class="o">indent</span><span class="k">="yes"</span> <span class="o">method</span><span class="k">="xml"</span> <span class="o">version</span><span class="k">="1.0"</span><span class="k">/&gt;</span>
+    <span class="k">&lt;</span><span class="i">xsl:template</span> <span class="o">match</span><span class="k">="*[@wrap = 'yes']"</span> <span class="o">priority</span><span class="k">="2"</span><span class="k">&gt;</span>
+        <span class="k">&lt;</span><span class="i">wrapping</span><span class="k">&gt;</span>
+            <span class="k">&lt;</span><span class="i">xsl:next-match</span><span class="k">/&gt;</span>
+        <span class="k">&lt;/</span><span class="i">wrapping</span><span class="k">&gt;</span>
+    <span class="k">&lt;/</span><span class="i">xsl:template</span><span class="k">&gt;</span>
+    <span class="k">&lt;</span><span class="i">xsl:template</span> <span class="o">match</span><span class="k">="*[@ignore = 'yes']"</span> <span class="o">priority</span><span class="k">="3"</span><span class="k">/&gt;</span>
+    <span class="k">&lt;</span><span class="i">xsl:template</span> <span class="o">match</span><span class="k">="a"</span><span class="k">&gt;</span>
+        <span class="k">&lt;</span><span class="i">one</span><span class="k">/&gt;</span>
+    <span class="k">&lt;/</span><span class="i">xsl:template</span><span class="k">&gt;</span>
+    <span class="k">&lt;</span><span class="i">xsl:template</span> <span class="o">match</span><span class="k">="a[@lang = 'it']"</span><span class="k">&gt;</span>
+        <span class="k">&lt;</span><span class="i">uno</span><span class="k">/&gt;</span>
+    <span class="k">&lt;/</span><span class="i">xsl:template</span><span class="k">&gt;</span>
+    <span class="k">&lt;</span><span class="i">xsl:template</span> <span class="o">match</span><span class="k">="b"</span><span class="k">&gt;</span>
+        <span class="k">&lt;</span><span class="i">two</span><span class="k">/&gt;</span>
+    <span class="k">&lt;/</span><span class="i">xsl:template</span><span class="k">&gt;</span>
+    <span class="k">&lt;</span><span class="i">xsl:template</span> <span class="o">match</span><span class="k">="@*|node()"</span><span class="k">&gt;</span>
+        <span class="k">&lt;</span><span class="i">xsl:copy</span><span class="k">&gt;</span>
+            <span class="k">&lt;</span><span class="i">xsl:apply-templates</span> <span class="o">select</span><span class="k">="@*|node()"</span> <span class="k">/&gt;</span>
+        <span class="k">&lt;/</span><span class="i">xsl:copy</span><span class="k">&gt;</span>
+    <span class="k">&lt;/</span><span class="i">xsl:template</span><span class="k">&gt;</span>
+<span class="k">&lt;/</span><span class="i">xsl:stylesheet</span><span class="k">&gt;</span>
+</code></pre></td></tr></table>
+<p>And here comes the question: How <strong>easy</strong> is it to maintain and extend the above transform?
+Are the <code>@priority</code> attributes simple to follow?
+In above example we have only 3 templates with the potential for ambiguity, but what if this number gets bigger and bigger?
+Those templates might turn out extremely unclear for a new-comer, who tries to figure out the control flow of XSLT transform such as above.</p>
+<blockquote>
+<p>Note: At first glance we might not spot the problem with this toy example - in practice, XSLT transforms grow in size really quickly and the issue becomes much more visible then.</p>
+</blockquote>
+<h2>Explicit processing transform</h2>
+<p>To overcome the problem of managing templates with the same priority, I'd like to show an alternative <strong>explicit</strong> version of a XSLT transform which gives the same output:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l"> 1: </span>
+<span class="l"> 2: </span>
+<span class="l"> 3: </span>
+<span class="l"> 4: </span>
+<span class="l"> 5: </span>
+<span class="l"> 6: </span>
+<span class="l"> 7: </span>
+<span class="l"> 8: </span>
+<span class="l"> 9: </span>
+<span class="l">10: </span>
+<span class="l">11: </span>
+<span class="l">12: </span>
+<span class="l">13: </span>
+<span class="l">14: </span>
+<span class="l">15: </span>
+<span class="l">16: </span>
+<span class="l">17: </span>
+<span class="l">18: </span>
+<span class="l">19: </span>
+<span class="l">20: </span>
+<span class="l">21: </span>
+<span class="l">22: </span>
+<span class="l">23: </span>
+<span class="l">24: </span>
+<span class="l">25: </span>
+<span class="l">26: </span>
+<span class="l">27: </span>
+<span class="l">28: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="xml"><span class="k">&lt;</span><span class="i">xsl:stylesheet</span> <span class="o">version</span><span class="k">="2.0"</span> <span class="o">xmlns:xsl</span><span class="k">="http://www.w3.org/1999/XSL/Transform"</span><span class="k">&gt;</span>
+    <span class="k">&lt;</span><span class="i">xsl:output</span> <span class="o">encoding</span><span class="k">="UTF-8"</span> <span class="o">indent</span><span class="k">="yes"</span> <span class="o">method</span><span class="k">="xml"</span> <span class="o">version</span><span class="k">="1.0"</span><span class="k">/&gt;</span>
+    <span class="k">&lt;</span><span class="i">xsl:template</span> <span class="o">match</span><span class="k">="/root"</span><span class="k">&gt;</span>
+        <span class="k">&lt;</span><span class="i">root</span><span class="k">&gt;</span>
+            <span class="k">&lt;</span><span class="i">xsl:for-each</span> <span class="o">select</span><span class="k">="*[not(@ignore = 'yes')]"</span><span class="k">&gt;</span>
+                <span class="k">&lt;</span><span class="i">xsl:choose</span><span class="k">&gt;</span>
+                    <span class="k">&lt;</span><span class="i">xsl:when</span> <span class="o">test</span><span class="k">="@wrap = 'yes'"</span><span class="k">&gt;</span>
+                        <span class="k">&lt;</span><span class="i">wrapping</span><span class="k">&gt;</span>
+                            <span class="k">&lt;</span><span class="i">xsl:apply-templates</span> <span class="o">select</span><span class="k">="self::*"</span><span class="k">/&gt;</span>
+                        <span class="k">&lt;/</span><span class="i">wrapping</span><span class="k">&gt;</span>
+                    <span class="k">&lt;/</span><span class="i">xsl:when</span><span class="k">&gt;</span>
+                    <span class="k">&lt;</span><span class="i">xsl:otherwise</span><span class="k">&gt;</span>
+                        <span class="k">&lt;</span><span class="i">xsl:apply-templates</span> <span class="o">select</span><span class="k">="self::*"</span><span class="k">/&gt;</span>
+                    <span class="k">&lt;/</span><span class="i">xsl:otherwise</span><span class="k">&gt;</span>
+                <span class="k">&lt;/</span><span class="i">xsl:choose</span><span class="k">&gt;</span>
+            <span class="k">&lt;/</span><span class="i">xsl:for-each</span><span class="k">&gt;</span>
+        <span class="k">&lt;/</span><span class="i">root</span><span class="k">&gt;</span>
+    <span class="k">&lt;/</span><span class="i">xsl:template</span><span class="k">&gt;</span>
+    <span class="k">&lt;</span><span class="i">xsl:template</span> <span class="o">match</span><span class="k">="a"</span><span class="k">&gt;</span>
+        <span class="k">&lt;</span><span class="i">one</span><span class="k">/&gt;</span>
+    <span class="k">&lt;/</span><span class="i">xsl:template</span><span class="k">&gt;</span>
+    <span class="k">&lt;</span><span class="i">xsl:template</span> <span class="o">match</span><span class="k">="a[@lang = 'it']"</span><span class="k">&gt;</span>
+        <span class="k">&lt;</span><span class="i">uno</span><span class="k">/&gt;</span>
+    <span class="k">&lt;/</span><span class="i">xsl:template</span><span class="k">&gt;</span>
+    <span class="k">&lt;</span><span class="i">xsl:template</span> <span class="o">match</span><span class="k">="b"</span><span class="k">&gt;</span>
+        <span class="k">&lt;</span><span class="i">two</span><span class="k">/&gt;</span>
+    <span class="k">&lt;/</span><span class="i">xsl:template</span><span class="k">&gt;</span>
+<span class="k">&lt;/</span><span class="i">xsl:stylesheet</span><span class="k">&gt;</span>
+</code></pre></td></tr></table>
+<p>While the three basic templates for mapping letters to numbers are left untouched (<code>a -&gt; one</code>, <code>b -&gt; two</code>), the logic for <strong>ignoring</strong> and <strong>wrapping</strong> elements is embodied into the main template which matches <code>/root</code>.</p>
+<p>Let's quickly go through the steps of the main template:</p>
+<ol>
+<li><code>xsl:for-each</code> instruction iterates nodes specified by the <code>@select</code> attribute - here we take all children of currently processed element (<code>*</code>) and filter out those with <code>@ignore = 'yes'</code> attribute,</li>
+<li><code>xsl:choose</code> instruction branches on <code>@wrap = 'yes'</code> predicate - if the predicate is satisfied, <code>wrapping</code> element is returned first,</li>
+<li>in both cases of <code>xsl:choose</code>, <code>xsl:apply-templates</code> is invoked on <code>self::*</code> which means the letter element - child element of <code>root</code>, selected by the <code>xsl:for-each</code> instruction`.</li>
+</ol>
+<p>We also got rid of the identity template - we no longer need it as the main template copies <code>root</code> element as well.</p>
+<h2>Summary</h2>
+<p>The <strong>explicit</strong> version despite being a bit longer than the <strong>implicit</strong> one, seems to be easier to follow - reader doesn't need to resolve template priorities in her head, but instead is given a clearer picture of the algorithm.</p>
+<p>We might think of the above trick as a special kind of <a href="https://en.wikipedia.org/wiki/Inversion_of_control">Inversion of Control</a> application.
+Rather than specifying different templates with priorities, we take <strong>control</strong> over the flow:</p>
+<ul>
+<li>on the <code>/root</code> level select child nodes to process,</li>
+<li>filter out unwanted nodes with <code>[not(@ignore = 'yes')]</code> XPath predicate,</li>
+<li>decide how to process an element based on presence of <code>@wrap = 'yes'</code>.</li>
+</ul>
+<p>Keep in mind that <strong>explicit</strong> processing might not always be a better choice - e.g. if the output of the transform has a very similar shape to the input, <strong>implicit</strong> processing can turn out to be more concise while remaining equally easy to reason about.</p>
+<p>This concludes my thoughts on implicit and explicit ways of processing XML documents with XSLT. In future I plan to bring to the table entry about XPath language to show how one can benefit from it within XSLT. Till next time!</p>
+
+
+  
+  <div id="disqus_thread"></div>
+    <script>
+        var disqus_config = function () {
+            this.page.url = "http://theimowski.com/blog/2016/06-29-xslt-implicit-vs-explicit-processing/index.html";
+            this.page.identifier = "2016/06-29-xslt-implicit-vs-explicit-processing";
+        };
+        (function() {  // DON'T EDIT BELOW THIS LINE
+            var d = document, s = d.createElement('script');
+            
+            s.src = '//theimowski.disqus.com/embed.js';
+            
+            s.setAttribute('data-timestamp', +new Date());
+            (d.head || d.body).appendChild(s);
+        })();
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+</div>
+      </div>
+    </div>
+
+    <label for="sidebar-checkbox" class="sidebar-toggle"></label>
+
+    <script>
+      (function(document) {
+        var toggle = document.querySelector('.sidebar-toggle');
+        var sidebar = document.querySelector('#sidebar');
+        var checkbox = document.querySelector('#sidebar-checkbox');
+
+        document.addEventListener('click', function(e) {
+          var target = e.target;
+
+          if(!checkbox.checked ||
+             sidebar.contains(target) ||
+             (target === checkbox || target === toggle)) return;
+
+          checkbox.checked = false;
+        }, false);
+      })(document);
+    </script>
+  </body>
+</html>
