@@ -5,6 +5,18 @@
     <description>FsBlog aims to be a blog-aware static site generator, mostly built in F#. But don't worry, you won't even need to know any F# to get up and running. So long as you are comfortable using a command line or terminal, and have a degree of familiarity with Markdown and Razor syntax - you're good to go!
 </description>
     <item>
+      <title>Paket 'why' command</title>
+      <guid>http://theimowski.com//blog/2016/10-30-paket-why-command</guid>
+      <link>http://theimowski.com//blog/2016/10-30-paket-why-command/index.html</link>
+      <pubDate>Sun, 30 Oct 2016 06:27:55 GMT</pubDate>
+      <description>&lt;p&gt;In this entry I introduce a brand new command called &lt;strong&gt;"why"&lt;/strong&gt; in &lt;a href="http://fsprojects.github.io/Paket/"&gt;Paket&lt;/a&gt; dependency manager.
+It was inspired by a recent project of Facebook, &lt;a href="https://yarnpkg.com/"&gt;Yarn&lt;/a&gt; and aims to display &lt;strong&gt;user-friendly&lt;/strong&gt; reason for a specific package to be under dependency management.
+The command is still in its alpha phase and is planned to be released as part of Paket v4.&lt;/p&gt;
+
+
+</description>
+    </item>
+    <item>
       <title>F# workshop in a browser</title>
       <guid>http://theimowski.com//blog/2016/07-20-f-workshop-in-a-browser</guid>
       <link>http://theimowski.com//blog/2016/07-20-f-workshop-in-a-browser/index.html</link>
