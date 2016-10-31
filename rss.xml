@@ -11,7 +11,7 @@
       <pubDate>Sun, 30 Oct 2016 06:27:55 GMT</pubDate>
       <description>&lt;p&gt;In this entry I introduce a brand new command called &lt;strong&gt;"why"&lt;/strong&gt; in &lt;a href="http://fsprojects.github.io/Paket/"&gt;Paket&lt;/a&gt; dependency manager.
 It was inspired by a recent project of Facebook, &lt;a href="https://yarnpkg.com/"&gt;Yarn&lt;/a&gt; and aims to display &lt;strong&gt;user-friendly&lt;/strong&gt; reason for a specific package to be under dependency management.
-The command is still in its alpha phase and is planned to be released as part of Paket v4.&lt;/p&gt;
+The command is available in &lt;a href="http://fsprojects.github.io/Paket/release-notes.html"&gt;Paket 3.26&lt;/a&gt;.&lt;/p&gt;
 
 
 </description>

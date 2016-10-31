@@ -100,7 +100,7 @@
   
 <p>In this entry I introduce a brand new command called <strong>"why"</strong> in <a href="http://fsprojects.github.io/Paket/">Paket</a> dependency manager.
 It was inspired by a recent project of Facebook, <a href="https://yarnpkg.com/">Yarn</a> and aims to display <strong>user-friendly</strong> reason for a specific package to be under dependency management.
-The command is still in its alpha phase and is planned to be released as part of Paket v4.</p>
+The command is available in <a href="http://fsprojects.github.io/Paket/release-notes.html">Paket 3.26</a>.</p>
 <!--more-->
 <h2>Inspiration</h2>
 <p>Lately Facebook has released a new JavaScript dependency manager on top of <a href="https://www.npmjs.com/">NPM</a>.
@@ -135,7 +135,7 @@ It's called <a href="https://www.npmjs.com/">Yarn</a> and as per the docs, it is
 | <span onmouseout="hideTip(event, 'fs3', 3)" onmouseover="showTip(event, 'fs3', 3)" class="p">Direct</span> <span class="k">of</span> <span class="i">DependencyChain</span> <span onmouseout="hideTip(event, 'fs4', 4)" onmouseover="showTip(event, 'fs4', 4)" class="t">list</span>
 <span class="c">// e.g. Microsoft.AspNet.Mvc - not specified in paket.dependencies</span>
 <span class="c">// a dependency of other package(s)</span>
-| <span onmouseout="hideTip(event, 'fs5', 5)" onmouseover="showTip(event, 'fs5', 5)" class="p">Transient</span> <span class="k">of</span> <span class="i">DependencyChain</span> <span onmouseout="hideTip(event, 'fs4', 6)" onmouseover="showTip(event, 'fs4', 6)" class="t">list</span>
+| <span onmouseout="hideTip(event, 'fs5', 5)" onmouseover="showTip(event, 'fs5', 5)" class="p">Transitive</span> <span class="k">of</span> <span class="i">DependencyChain</span> <span onmouseout="hideTip(event, 'fs4', 6)" onmouseover="showTip(event, 'fs4', 6)" class="t">list</span>
 </code></pre></td>
 </tr>
 </table>
@@ -145,7 +145,7 @@ It's called <a href="https://www.npmjs.com/">Yarn</a> and as per the docs, it is
 <code>Direct</code> is also a direct dependency however contrary to <code>TopLevel</code>, there's at least one other package managed by Paket that depends on <code>Direct</code>.
 Note that <code>TopLevel</code> will always be a direct package, but <code>Direct</code> won't always be "top-level".
 </li>
-<li><code>Transient</code> means an "indirect" dependency. The sole reason it's kept track of by Paket is because it's a dependency of some other package.</li>
+<li><code>Transitive</code> means an "indirect" dependency. The sole reason it's kept track of by Paket is because it's a dependency of some other package.</li>
 </ol>
 <h2>Example</h2>
 <p>As example, let's have a look at dependencies of <a href="http://fsharp.github.io/FAKE/">FAKE</a> project:</p>
@@ -226,19 +226,19 @@ Even though it's not top-level, it is still a direct dependency, because as we s
 If however we're interested in more details, we can print more details by adding <code>--details</code> argument to the command:</p>
 <p><img src="razor.details.png" alt="razor.details.png" /></p>
 <p>The <code>--details</code> flag displays also information about version requirements as well as framework constraints if any.</p>
-<p>What about transient dependencies? In FAKE project, <code>Microsoft.AspNet.Mvc</code> is an example of transient dependency:</p>
+<p>What about transitive dependencies? In FAKE project, <code>Microsoft.AspNet.Mvc</code> is an example of transitive dependency:</p>
 <p><img src="mvc.png" alt="mvc.png" /></p>
 <h2>Summary</h2>
 <p>The new <strong>"why"</strong> command allows to easily determine why a given package is under Paket control.
 This in turn can help us better understand our dependencies within a project and enable smoother management.</p>
-<p>As of the time of writing, the command is available to play with as a <a href="https://github.com/fsprojects/Paket/releases">pre-release</a> of Paket 4.</p>
+<p>The command is now available in <a href="http://fsprojects.github.io/Paket/release-notes.html">Paket 3.26</a>.</p>
 <p>Till next time!</p>
 
-<div class="tip" id="fs1">type Reason =<br />&#160;&#160;| TopLevel<br />&#160;&#160;| Direct of obj<br />&#160;&#160;| Transient of obj<br /><br />Full name: paketwhycommand.Reason</div>
+<div class="tip" id="fs1">type Reason =<br />&#160;&#160;| TopLevel<br />&#160;&#160;| Direct of obj<br />&#160;&#160;| Transitive of obj<br /><br />Full name: paketwhycommand.Reason</div>
 <div class="tip" id="fs2">union case Reason.TopLevel: Reason</div>
 <div class="tip" id="fs3">union case Reason.Direct: obj -&gt; Reason</div>
 <div class="tip" id="fs4">type &#39;T list = List&lt;&#39;T&gt;<br /><br />Full name: Microsoft.FSharp.Collections.list&lt;_&gt;</div>
-<div class="tip" id="fs5">union case Reason.Transient: obj -&gt; Reason</div>
+<div class="tip" id="fs5">union case Reason.Transitive: obj -&gt; Reason</div>
 
   
   <div id="disqus_thread"></div>
