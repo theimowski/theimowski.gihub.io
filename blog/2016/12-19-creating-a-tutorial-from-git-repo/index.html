@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+  <head>
+    <link href="http://gmpg.org/xfn/11" rel="profile">
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  
+    <!-- Enable responsiveness on mobile devices-->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+  
+    <title>Creating a tutorial from Git repo</title>
+  
+    <!-- CSS -->
+    <link rel="stylesheet" href="/css/poole.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/lanyon.css">
+    <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=PT+Serif:400,400italic,700|PT+Sans:400">
+    
+    <!-- FSharp.Formatting Styles -->
+    <link rel="stylesheet" type="text/css" media="screen" href="/fsharp.formatting/tooltips.css" />
+  	<script type="text/javascript" src="/fsharp.formatting/tooltips.js"></script>
+    <script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+      
+    <!-- Icons -->
+    <link rel="apple-touch-icon" sizes="57x57" href="/apple-touch-icon-57x57.png">
+    <link rel="apple-touch-icon" sizes="60x60" href="/apple-touch-icon-60x60.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="/apple-touch-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="76x76" href="/apple-touch-icon-76x76.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="/apple-touch-icon-114x114.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="/apple-touch-icon-120x120.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="/apple-touch-icon-144x144.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="/apple-touch-icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon-180x180.png">
+    <link rel="icon" type="image/png" href="/favicon-32x32.png" sizes="32x32">
+    <link rel="icon" type="image/png" href="/android-chrome-192x192.png" sizes="192x192">
+    <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96">
+    <link rel="icon" type="image/png" href="/favicon-16x16.png" sizes="16x16">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+    <meta name="msapplication-TileColor" content="#da532c">
+    <meta name="msapplication-TileImage" content="/mstile-144x144.png">
+    <meta name="theme-color" content="#ffffff">
+  
+    <style type="text/css">
+      table.pre td {
+        border: none;
+      }
+      
+      table.pre code {
+        font: 9pt 'Droid Sans Mono',consolas,monospace;
+      }
+    </style>
+    
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+    
+      ga('create', 'UA-71283003-1', 'auto');
+      ga('send', 'pageview');
+    
+    </script>
+  
+  </head>
+  <body>
+    <input type="checkbox" class="sidebar-checkbox" id="sidebar-checkbox">
+
+    <div class="sidebar" id="sidebar">
+      <div class="sidebar-item">
+        <p>My website - place where I share thoughts on programming</p>
+      </div>
+    
+      <nav class="sidebar-nav">
+        <a class="sidebar-nav-item" href="/blog/index.html">Blog</a>
+        <a class="sidebar-nav-item" href="/about/index.html">About me</a>
+      </nav>
+    
+      <div class="sidebar-item">
+        <p>Created with <a target="_blank" href="https://github.com/fsprojects/FsBlog">FsBlog</a> and <a target="_blank" href="http://lanyon.getpoole.com/">Lanyon</a></p>
+        <p>&copy; Tomasz Heimowski, 2015.</p>
+      </div>
+
+    </div>
+
+    <div class="wrap">
+      <div class="masthead">
+        <div class="container">
+
+          <h3 class="masthead-title">
+            <a href="/index.html" title="Home">Tomasz Heimowski</a>
+          </h3>
+        </div>
+      </div>
+
+      <div class="container content">
+        
+
+<div class="post">
+  <h1 class="post-title">Creating a tutorial from Git repo</h1>
+  
+<p>What if author of a programming book could maintain his content and related code in the same place?
+In this entry I'll share with you my experimental idea for code-heavy F# tutorials.</p>
+<!--more-->
+<div class="message">
+<p>This post is part of the <a href="https://sergeytihon.wordpress.com/2016/10/23/f-advent-calendar-in-english-2016/">F# Advent Calendar 2016</a> initiative - make sure to go check out rest of posts as well.
+I'd like to thank <a href="https://twitter.com/sergey_tihon">Sergey Tihon</a> for organising F# Advent. Previous edition of the event gave birth to this blog, encouraging me to write <a href="/blog/2015/12-21-property-based-testing-xslt/index.html">my first post ever</a>.</p>
+</div>
+<h2>Motivation</h2>
+<p>More than a year ago, as part of my master thesis I've written <a href="https://www.gitbook.com/book/theimowski/suave-music-store">Suave Music Store tutorial</a>.
+To my delight, this <a href="https://www.gitbook.com/">GitBook</a> turned out to be a pretty good starting point for developers wanting to learn <a href="https://suave.io/">Suave</a> for web development.
+As I'm not probably the best technical writer, I was wondering what could have made this resource that successful.
+I arrived at a conclusion, that what was special about format of this tutorial when compared to other tutorials available on web was the close <strong>connection of source code to content</strong>, which guided step-by-step, change-by-change through the process of creating a web app.</p>
+<p>What did this mean in practice?
+Let's have a look at following example from tutorial:</p>
+<p><img src="github_tag_hyperlink.png" alt="GitHub tag hyperlink" /></p>
+<p>In addition to thorough explanation of every single change, I included (at the end of each main section) a hyperlink to git tag pointing to GitHub <strong>commit</strong> with state of the codebase at the exact point of tutorial. Thanks to this, the reader could have a look at original sources in case he got stuck during his experiments.</p>
+<p>To maintain the tutorial I decided to keep track of two separate repositories: <a href="https://github.com/theimowski/SuaveMusicStore">first</a> for the source code of the app, and <a href="https://github.com/theimowski/SuaveMusicStoreTutorial">second</a> for the GitBook tutorial content.
+I could have probably done the same with a single git repository, however then I'd go for separate branches for source and content so that I could easily make distinction between source and content related changes.
+Also one of my main goals was to enable the reader go checkout the source repository and <strong>browse through the commit history</strong>, so I had to keep the history as clean as possible, with no junk commits in between.</p>
+<p><img src="commit_history.png" alt="commit_history.png" /></p>
+<p>As seen in above screenshot, git commit history for the source repository was linear, with few changes between commits so that the reader could easily check it out (or <code>git checkout it</code> ಠ⌣ಠ).</p>
+<p>Keeping sync between those two repos wasn't very convenient. While copying pieces of code between source and content or fixing typos were rather kind of usual activities, one of the hardest issue to deal with was <strong>amending the source code</strong>.
+To ensure my initial goal of allowing reader to browse through each commit, I had to overwrite remote git history, which meant the (in)famous <code>git push --force</code>, as well as recreating proper git tags, so that the hyperlinks pointed to right commit.</p>
+<p>I initially based the tutorial on <strong>Suave 0.28.1</strong>, which back then was the latest version.
+When <strong>Suave 1.0</strong> got released, I wanted to update the content accordingly.
+I even got <a href="https://github.com/theimowski/SuaveMusicStoreTutorial/pull/11">help</a> from the OSS community to do so, but then I got back to the problem of sync with source code git history.
+What I ended up was a new git branch which I <strong>rebased</strong> in <a href="https://git-scm.com/docs/git-rebase#git-rebase---interactive">interactive</a> mode from the root commit of source code repository.
+This required quite a lot effort, but I managed to retain my original goal.</p>
+<p>Now that <strong>Suave 2.0</strong> is close to its stable release, I'd like to start works on and publish new version of the tutorial.
+To help me deal with my authoring problems, I figured out a <strong>rather unusual idea</strong>, which I'm going to describe in this entry.</p>
+<blockquote>
+<p>Note: The idea is still a work in progress, and I'm not even sure where it goes. It might happen that I decide at certain point that the solution isn't as awesome as I thought it could be and drop it completely. Anyways I thought it can be worth sharing with public. Feedback can really do a great job, so feel free to leave your comments.</p>
+</blockquote>
+<h2>The idea</h2>
+<p>The idea is based on following assumptions:</p>
+<ul>
+<li>unit of change in sources, a <strong>git commit</strong> maps to a single section (or nested subsection) of tutorial,</li>
+<li>every commit contains only those changes that are described in corresponding (sub)section,</li>
+<li>content of the section is stored in <strong>commit message</strong>, formatted in markdown,</li>
+<li>each commit (section) starts with a header, and the nesting level is determined by count of <code>#</code> (which corresponds to markdown header).</li>
+</ul>
+<p><img src="hello_world_commit.png" alt="hello_world_commit.png" /></p>
+<p>Example: "Hello World from Suave" commit</p>
+<p><img src="hello_world_section.png" alt="hello_world_section.png" /></p>
+<p>Example: "Hello world from Suave" section</p>
+<p>From the above example we can see how "Hello world from Suave" section is a one-to-one mapping of a git commit to tutorial content.</p>
+<p><img src="git_log_reverse_oneline.png" alt="git_log_reverse_oneline.png" /></p>
+<p>In above we can see a one-line log from the repository showing headers of the sections:</p>
+<ul>
+<li>"Introduction" is 1st level section</li>
+<li>"Hello world from Suave" is 1st level section</li>
+<li>"WebPart" is 1st level section</li>
+<li>
+"Basic routing" is 1st level section
+<ul>
+<li>"Url parameters" is 2nd level <strong>sub</strong>section</li>
+<li>"Query parameters" is 2nd level <strong>sub</strong>section</li>
+</ul>
+</li>
+</ul>
+<p>... and so on ...</p>
+<p>To prototype this idea, I've extracted couple of sections from the tutorial and tried to recreate them on a separate branch, with earlier assumptions in mind.</p>
+<p>A preview of tutorial created in this manner can be viewed <a href="https://theimowski.gitbooks.io/suave-music-store/content/v/test/">here</a>.
+There are a couple of sections there from the original tutorial (still based on Suave v1.0).
+I've played around the bits and tried to utilize the fact that I have a fully-fledged Git repository underneath the tutorial.</p>
+<h2>Literal Programming</h2>
+<p>Presented idea might seem related to the concept of Literal Programming.
+In F# world, Literal Programming is often associated with <a href="https://tpetricek.github.io/FSharp.Formatting/literate.html">FSharp.Formatting</a> library maintained by <a href="http://tomasp.net/">Tomas Petricek</a>.
+Indeed, the library can be embraced for providing already well-known syntax highlighting which is better and looks nicer than the standard offered by GitBook website:</p>
+<p><img src="syntax_highlighting_standard.png" alt="syntax_highlighting_standard.png" /></p>
+<p>Standard GitBook syntax highlighting for F#</p>
+<p><img src="syntax_highlighting_fsharp_formatting.png" alt="syntax_highlighting_fsharp_formatting.png" /></p>
+<p>FSharp.Formatting syntax highlighting for F#</p>
+<p>FSharp.Formatting also includes a capability to display tooltips for F# code snippets, however I haven't yet managed to make them work properly in the preview.</p>
+<p>What's more, code snippets <strong>do not have to be manually kept in sync</strong> between tutorial content and the source repositories.
+Instead, they can be just marked with a placeholder in a git commit:</p>
+<p><img src="snippet_placeholders.png" alt="snippet_placeholders.png" /></p>
+<p>And later expanded with corresponding lines:</p>
+<p><img src="snippets_expanded.png" alt="snippets_expanded.png" /></p>
+<p>Also, basing on the fact that each section corresponds to a git commit, a link to this specific GitHub commit can be generated at the end of each section.
+Under the link, there is also a list of files modified within this commit:</p>
+<p><img src="github_commit.png" alt="github_commit.png" /></p>
+<p>Link to specific commit on GitHub</p>
+<p><img src="github_commit_website.png" alt="github_commit_website.png" /></p>
+<p>The commit shown on GitHub</p>
+<h2>Implementation</h2>
+<p>Now I'd like to share how the GitBook content is actually generated.
+For prototyping the idea I've written a FAKE script, which I run from the command line with a few parameters, the main parameter being path to the prepared repository.
+Eventually, if the prototype turns out successful, the script could be rearranged to a standalone executable to be run from the directory of target repository.</p>
+<p>Moving now to the code itself:</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+<span class="l">4: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span onmouseout="hideTip(event, 'fs1', 1)" onmouseover="showTip(event, 'fs1', 1)" class="i">commits</span> <span class="o">=</span> 
+    <span class="i">Git</span><span class="o">.</span><span class="i">CommandHelper</span><span class="o">.</span><span class="i">getGitResult</span> 
+        <span class="i">repo</span> 
+        (<span class="s">&quot;log --reverse --pretty=%H &quot;</span> <span class="o">+</span> <span class="i">branch</span>)
+</code></pre></td>
+</tr>
+</table>
+<p>To fetch list of commits' hashes, I used <code>GitHelper</code> from the FAKE library and pointed to a chosen branch.</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+<span class="l">4: </span>
+<span class="l">5: </span>
+<span class="l">6: </span>
+<span class="l">7: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span onmouseout="hideTip(event, 'fs2', 2)" onmouseover="showTip(event, 'fs2', 2)" class="i">msg</span> <span class="o">=</span> 
+    <span class="i">Git</span><span class="o">.</span><span class="i">CommandHelper</span><span class="o">.</span><span class="i">getGitResult</span> 
+        <span class="i">repo</span> 
+        (<span class="s">&quot;log --format=%B -n 1 &quot;</span> <span class="o">+</span> <span class="i">commit</span>) <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs3', 3)" onmouseover="showTip(event, 'fs3', 3)" class="t">Seq</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs4', 4)" onmouseover="showTip(event, 'fs4', 4)" class="f">toList</span>
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs5', 5)" onmouseover="showTip(event, 'fs5', 5)" class="i">firstLine</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs2', 6)" onmouseover="showTip(event, 'fs2', 6)" class="i">msg</span> <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs3', 7)" onmouseover="showTip(event, 'fs3', 7)" class="t">Seq</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs6', 8)" onmouseover="showTip(event, 'fs6', 8)" class="f">item</span> <span class="n">0</span>
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs7', 9)" onmouseover="showTip(event, 'fs7', 9)" class="i">level</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs8', 10)" onmouseover="showTip(event, 'fs8', 10)" class="f">max</span> <span class="n">0</span> (<span onmouseout="hideTip(event, 'fs5', 11)" onmouseover="showTip(event, 'fs5', 11)" class="i">firstLine</span><span class="o">.</span><span class="i">LastIndexOf</span>(<span class="s">&quot;#&quot;</span>))
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs9', 12)" onmouseover="showTip(event, 'fs9', 12)" class="i">title</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs5', 13)" onmouseover="showTip(event, 'fs5', 13)" class="i">firstLine</span><span class="o">.</span><span class="i">Substring</span>(<span onmouseout="hideTip(event, 'fs7', 14)" onmouseover="showTip(event, 'fs7', 14)" class="i">level</span> <span class="o">+</span> <span class="n">1</span>)<span class="o">.</span><span class="i">Trim</span>()
+</code></pre></td>
+</tr>
+</table>
+<p>Then for each commit, I extracted the title (first line of message), as well as rest of the message.</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip"><code lang="bash">git config core.commentChar ";"
+</code></pre></td></tr></table>
+<p>By default Git uses <code>#</code> character for marking a comment line within a git commit, so I've changed it to semicolon, so that I could use <code>#</code> for markdown headers.</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+<span class="l">4: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span onmouseout="hideTip(event, 'fs2', 15)" onmouseover="showTip(event, 'fs2', 15)" class="i">msg</span>
+<span class="o">|&gt;</span> <span class="i">insertSnippets</span> <span class="i">commit</span>
+<span class="o">|&gt;</span> <span class="i">insertGithubCommit</span> <span class="i">commit</span>
+<span class="o">|&gt;</span> <span class="i">insertGitDiff</span> <span class="i">commit</span>
+</code></pre></td>
+</tr>
+</table>
+<p>The rest of commit message gets enriched with a couple of helper functions.</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l"> 1: </span>
+<span class="l"> 2: </span>
+<span class="l"> 3: </span>
+<span class="l"> 4: </span>
+<span class="l"> 5: </span>
+<span class="l"> 6: </span>
+<span class="l"> 7: </span>
+<span class="l"> 8: </span>
+<span class="l"> 9: </span>
+<span class="l">10: </span>
+<span class="l">11: </span>
+<span class="l">12: </span>
+<span class="l">13: </span>
+<span class="l">14: </span>
+<span class="l">15: </span>
+<span class="l">16: </span>
+<span class="l">17: </span>
+<span class="l">18: </span>
+<span class="l">19: </span>
+<span class="l">20: </span>
+<span class="l">21: </span>
+<span class="l">22: </span>
+<span class="l">23: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span onmouseout="hideTip(event, 'fs10', 16)" onmouseover="showTip(event, 'fs10', 16)" class="f">fileContentsAt</span> <span onmouseout="hideTip(event, 'fs11', 17)" onmouseover="showTip(event, 'fs11', 17)" class="i">commit</span> <span onmouseout="hideTip(event, 'fs12', 18)" onmouseover="showTip(event, 'fs12', 18)" class="i">file</span> <span class="o">=</span> 
+    <span class="i">Git</span><span class="o">.</span><span class="i">CommandHelper</span><span class="o">.</span><span class="i">getGitResult</span> <span class="i">repo</span> (<span onmouseout="hideTip(event, 'fs13', 19)" onmouseover="showTip(event, 'fs13', 19)" class="i">sprintf</span> <span class="s">&quot;show %s:%s&quot;</span> <span onmouseout="hideTip(event, 'fs11', 20)" onmouseover="showTip(event, 'fs11', 20)" class="i">commit</span> <span onmouseout="hideTip(event, 'fs12', 21)" onmouseover="showTip(event, 'fs12', 21)" class="i">file</span>) 
+
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs14', 22)" onmouseover="showTip(event, 'fs14', 22)" class="f">insertSnippet</span> (<span onmouseout="hideTip(event, 'fs15', 23)" onmouseover="showTip(event, 'fs15', 23)" class="i">commit</span> <span class="o">:</span> <span onmouseout="hideTip(event, 'fs16', 24)" onmouseover="showTip(event, 'fs16', 24)" class="t">string</span>) (<span onmouseout="hideTip(event, 'fs17', 25)" onmouseover="showTip(event, 'fs17', 25)" class="i">line</span> <span class="o">:</span> <span onmouseout="hideTip(event, 'fs16', 26)" onmouseover="showTip(event, 'fs16', 26)" class="t">string</span>) <span class="o">=</span>
+    <span class="k">if</span> <span onmouseout="hideTip(event, 'fs17', 27)" onmouseover="showTip(event, 'fs17', 27)" class="i">line</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs18', 28)" onmouseover="showTip(event, 'fs18', 28)" class="f">StartsWith</span> <span class="s">&quot;==&gt; &quot;</span> <span class="k">then</span>
+        <span class="k">let</span> <span onmouseout="hideTip(event, 'fs19', 29)" onmouseover="showTip(event, 'fs19', 29)" class="i">contents</span>, <span onmouseout="hideTip(event, 'fs20', 30)" onmouseover="showTip(event, 'fs20', 30)" class="i">snipId</span> <span class="o">=</span> 
+        <span class="k">match</span> <span onmouseout="hideTip(event, 'fs17', 31)" onmouseover="showTip(event, 'fs17', 31)" class="i">line</span> <span class="k">with</span>
+        | <span class="i">Regex</span> <span class="s">&quot;^==&gt; ([\w\.]+):(\d+)-(\d+)$&quot;</span> [<span class="i">file</span>;<span class="i">Int32</span> <span class="i">lstart</span>;<span class="i">Int32</span> <span class="i">lend</span>] <span class="k">-&gt;</span>
+            <span onmouseout="hideTip(event, 'fs10', 32)" onmouseover="showTip(event, 'fs10', 32)" class="i">fileContentsAt</span> <span onmouseout="hideTip(event, 'fs15', 33)" onmouseover="showTip(event, 'fs15', 33)" class="i">commit</span> <span class="i">file</span> 
+            <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs3', 34)" onmouseover="showTip(event, 'fs3', 34)" class="i">Seq</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs21', 35)" onmouseover="showTip(event, 'fs21', 35)" class="i">skip</span> (<span class="i">lstart</span> <span class="o">-</span> <span class="n">1</span>)
+            <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs3', 36)" onmouseover="showTip(event, 'fs3', 36)" class="i">Seq</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs22', 37)" onmouseover="showTip(event, 'fs22', 37)" class="i">take</span> (<span class="i">lend</span> <span class="o">-</span> <span class="i">lstart</span> <span class="o">+</span> <span class="n">1</span>)
+            <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs3', 38)" onmouseover="showTip(event, 'fs3', 38)" class="i">Seq</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs4', 39)" onmouseover="showTip(event, 'fs4', 39)" class="i">toList</span>, <span onmouseout="hideTip(event, 'fs17', 40)" onmouseover="showTip(event, 'fs17', 40)" class="i">line</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs23', 41)" onmouseover="showTip(event, 'fs23', 41)" class="i">Substring</span>(<span class="s">&quot;==&gt; &quot;</span><span class="o">.</span><span class="i">Length</span>)
+        | <span class="i">Regex</span> <span class="s">&quot;^==&gt; ([\w\.]+)$&quot;</span> [<span class="i">file</span>] <span class="k">-&gt;</span>
+            <span onmouseout="hideTip(event, 'fs10', 42)" onmouseover="showTip(event, 'fs10', 42)" class="i">fileContentsAt</span> <span onmouseout="hideTip(event, 'fs15', 43)" onmouseover="showTip(event, 'fs15', 43)" class="i">commit</span> <span class="i">file</span> 
+            <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs3', 44)" onmouseover="showTip(event, 'fs3', 44)" class="i">Seq</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs4', 45)" onmouseover="showTip(event, 'fs4', 45)" class="i">toList</span>, <span onmouseout="hideTip(event, 'fs17', 46)" onmouseover="showTip(event, 'fs17', 46)" class="i">line</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs23', 47)" onmouseover="showTip(event, 'fs23', 47)" class="i">Substring</span>(<span class="s">&quot;==&gt; &quot;</span><span class="o">.</span><span class="i">Length</span>)
+        | _ <span class="k">-&gt;</span> 
+            <span onmouseout="hideTip(event, 'fs24', 48)" onmouseover="showTip(event, 'fs24', 48)" class="i">failwithf</span> <span class="s">&quot;invalid format &#39;%s&#39;&quot;</span> <span onmouseout="hideTip(event, 'fs17', 49)" onmouseover="showTip(event, 'fs17', 49)" class="i">line</span>
+
+        <span class="c">// do magic with FSharp.Formatting and return formatted string</span>
+    <span class="k">else</span>
+        <span onmouseout="hideTip(event, 'fs17', 50)" onmouseover="showTip(event, 'fs17', 50)" class="i">line</span>    
+
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs25', 51)" onmouseover="showTip(event, 'fs25', 51)" class="f">insertSnippets</span> <span onmouseout="hideTip(event, 'fs15', 52)" onmouseover="showTip(event, 'fs15', 52)" class="i">commit</span> <span onmouseout="hideTip(event, 'fs26', 53)" onmouseover="showTip(event, 'fs26', 53)" class="i">code</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs27', 54)" onmouseover="showTip(event, 'fs27', 54)" class="t">List</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs28', 55)" onmouseover="showTip(event, 'fs28', 55)" class="f">map</span> (<span onmouseout="hideTip(event, 'fs14', 56)" onmouseover="showTip(event, 'fs14', 56)" class="f">insertSnippet</span> <span onmouseout="hideTip(event, 'fs15', 57)" onmouseover="showTip(event, 'fs15', 57)" class="i">commit</span>) <span onmouseout="hideTip(event, 'fs26', 58)" onmouseover="showTip(event, 'fs26', 58)" class="i">code</span>
+</code></pre></td>
+</tr>
+</table>
+<p>To insert code snippets, I replaced all occurrences of lines starting with <code>==&gt;</code> to the corresponding code in given file.</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l">1: </span>
+<span class="l">2: </span>
+<span class="l">3: </span>
+<span class="l">4: </span>
+<span class="l">5: </span>
+<span class="l">6: </span>
+<span class="l">7: </span>
+<span class="l">8: </span>
+<span class="l">9: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span onmouseout="hideTip(event, 'fs29', 59)" onmouseover="showTip(event, 'fs29', 59)" class="f">insertGithubCommit</span> <span onmouseout="hideTip(event, 'fs15', 60)" onmouseover="showTip(event, 'fs15', 60)" class="i">commit</span> <span onmouseout="hideTip(event, 'fs26', 61)" onmouseover="showTip(event, 'fs26', 61)" class="i">code</span> <span class="o">=</span> 
+    <span onmouseout="hideTip(event, 'fs13', 62)" onmouseover="showTip(event, 'fs13', 62)" class="f">sprintf</span> <span class="s">&quot;GitHub commit: [</span><span class="pf">%s</span><span class="s">](https://github.com/</span><span class="pf">%s</span><span class="s">/</span><span class="pf">%s</span><span class="s">/commit/</span><span class="pf">%s</span><span class="s">)&quot;</span>
+            <span onmouseout="hideTip(event, 'fs15', 63)" onmouseover="showTip(event, 'fs15', 63)" class="i">commit</span>
+            <span class="i">githubAccount</span>
+            <span class="i">githubRepo</span>
+            <span onmouseout="hideTip(event, 'fs15', 64)" onmouseover="showTip(event, 'fs15', 64)" class="i">commit</span>
+    <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs27', 65)" onmouseover="showTip(event, 'fs27', 65)" class="t">List</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs30', 66)" onmouseover="showTip(event, 'fs30', 66)" class="f">singleton</span>
+    <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs27', 67)" onmouseover="showTip(event, 'fs27', 67)" class="t">List</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs31', 68)" onmouseover="showTip(event, 'fs31', 68)" class="f">append</span> [<span class="s">&quot;&quot;</span>;<span class="s">&quot;---&quot;</span>;<span class="s">&quot;&quot;</span>]
+    <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs27', 69)" onmouseover="showTip(event, 'fs27', 69)" class="t">List</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs31', 70)" onmouseover="showTip(event, 'fs31', 70)" class="f">append</span> <span onmouseout="hideTip(event, 'fs26', 71)" onmouseover="showTip(event, 'fs26', 71)" class="i">code</span>
+</code></pre></td>
+</tr>
+</table>
+<p>Given the commit hash was given, it was very easy to add a link to GitHub with that commit.</p>
+<table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l"> 1: </span>
+<span class="l"> 2: </span>
+<span class="l"> 3: </span>
+<span class="l"> 4: </span>
+<span class="l"> 5: </span>
+<span class="l"> 6: </span>
+<span class="l"> 7: </span>
+<span class="l"> 8: </span>
+<span class="l"> 9: </span>
+<span class="l">10: </span>
+<span class="l">11: </span>
+<span class="l">12: </span>
+<span class="l">13: </span>
+<span class="l">14: </span>
+<span class="l">15: </span>
+<span class="l">16: </span>
+<span class="l">17: </span>
+<span class="l">18: </span>
+<span class="l">19: </span>
+<span class="l">20: </span>
+<span class="l">21: </span>
+<span class="l">22: </span>
+<span class="l">23: </span>
+<span class="l">24: </span>
+<span class="l">25: </span>
+<span class="l">26: </span>
+<span class="l">27: </span>
+<span class="l">28: </span>
+<span class="l">29: </span>
+</pre></td>
+<td class="snippet"><pre class="fssnip highlighted"><code lang="fsharp"><span class="k">let</span> <span onmouseout="hideTip(event, 'fs32', 72)" onmouseover="showTip(event, 'fs32', 72)" class="f">numStat</span> <span onmouseout="hideTip(event, 'fs33', 73)" onmouseover="showTip(event, 'fs33', 73)" class="i">line</span> <span class="o">=</span>
+    <span class="k">let</span> <span onmouseout="hideTip(event, 'fs34', 74)" onmouseover="showTip(event, 'fs34', 74)" class="f">split</span> <span class="o">=</span> <span class="k">function</span>
+    | <span class="i">Regex</span> <span class="s">&quot;^(\w)\s+(.*)$&quot;</span> [<span class="i">status</span>; <span class="i">name</span>] <span class="k">-&gt;</span> <span class="i">status</span>,<span class="i">name</span>
+    | _ <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs24', 75)" onmouseover="showTip(event, 'fs24', 75)" class="i">failwithf</span> <span class="s">&quot;split cannot parse: %s&quot;</span> <span onmouseout="hideTip(event, 'fs33', 76)" onmouseover="showTip(event, 'fs33', 76)" class="i">line</span>
+
+    <span class="k">let</span> <span onmouseout="hideTip(event, 'fs35', 77)" onmouseover="showTip(event, 'fs35', 77)" class="f">human</span> <span class="o">=</span> <span class="k">function</span>
+    | <span class="s">&quot;A&quot;</span> <span class="k">-&gt;</span> <span class="s">&quot;added&quot;</span>
+    | <span class="s">&quot;D&quot;</span> <span class="k">-&gt;</span> <span class="s">&quot;deleted&quot;</span>
+    | <span class="s">&quot;M&quot;</span> <span class="k">-&gt;</span> <span class="s">&quot;modified&quot;</span>
+    | <span onmouseout="hideTip(event, 'fs36', 78)" onmouseover="showTip(event, 'fs36', 78)" class="i">x</span> <span class="k">-&gt;</span> <span onmouseout="hideTip(event, 'fs24', 79)" onmouseover="showTip(event, 'fs24', 79)" class="f">failwithf</span> <span class="s">&quot;human: </span><span class="pf">%s</span><span class="s">&quot;</span> <span onmouseout="hideTip(event, 'fs36', 80)" onmouseover="showTip(event, 'fs36', 80)" class="i">x</span>
+
+    <span class="k">let</span> (<span onmouseout="hideTip(event, 'fs37', 81)" onmouseover="showTip(event, 'fs37', 81)" class="i">stat</span>,<span onmouseout="hideTip(event, 'fs38', 82)" onmouseover="showTip(event, 'fs38', 82)" class="i">name</span>) <span class="o">=</span> <span onmouseout="hideTip(event, 'fs34', 83)" onmouseover="showTip(event, 'fs34', 83)" class="f">split</span> <span onmouseout="hideTip(event, 'fs33', 84)" onmouseover="showTip(event, 'fs33', 84)" class="i">line</span>
+    <span onmouseout="hideTip(event, 'fs13', 85)" onmouseover="showTip(event, 'fs13', 85)" class="f">sprintf</span> <span class="s">&quot;* </span><span class="pf">%s</span><span class="s"> (</span><span class="pf">%s</span><span class="s">)&quot;</span> <span onmouseout="hideTip(event, 'fs38', 86)" onmouseover="showTip(event, 'fs38', 86)" class="i">name</span> (<span onmouseout="hideTip(event, 'fs35', 87)" onmouseover="showTip(event, 'fs35', 87)" class="f">human</span> <span onmouseout="hideTip(event, 'fs37', 88)" onmouseover="showTip(event, 'fs37', 88)" class="i">stat</span>)
+
+
+<span class="k">let</span> <span onmouseout="hideTip(event, 'fs39', 89)" onmouseover="showTip(event, 'fs39', 89)" class="f">insertGitDiff</span> <span onmouseout="hideTip(event, 'fs11', 90)" onmouseover="showTip(event, 'fs11', 90)" class="i">commit</span> <span onmouseout="hideTip(event, 'fs26', 91)" onmouseover="showTip(event, 'fs26', 91)" class="i">code</span> <span class="o">=</span>
+    <span class="k">let</span> <span onmouseout="hideTip(event, 'fs40', 92)" onmouseover="showTip(event, 'fs40', 92)" class="i">filesChanged</span> <span class="o">=</span>
+        <span class="i">Git</span><span class="o">.</span><span class="i">CommandHelper</span><span class="o">.</span><span class="i">getGitResult</span> 
+            <span class="i">repo</span> 
+            (<span onmouseout="hideTip(event, 'fs13', 93)" onmouseover="showTip(event, 'fs13', 93)" class="i">sprintf</span> <span class="s">&quot;diff %s^..%s --name-status&quot;</span> <span onmouseout="hideTip(event, 'fs11', 94)" onmouseover="showTip(event, 'fs11', 94)" class="i">commit</span> <span onmouseout="hideTip(event, 'fs11', 95)" onmouseover="showTip(event, 'fs11', 95)" class="i">commit</span>)
+        <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs3', 96)" onmouseover="showTip(event, 'fs3', 96)" class="t">Seq</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs4', 97)" onmouseover="showTip(event, 'fs4', 97)" class="f">toList</span>
+    
+    <span class="k">if</span> <span onmouseout="hideTip(event, 'fs40', 98)" onmouseover="showTip(event, 'fs40', 98)" class="i">filesChanged</span> <span class="o">=</span> <span onmouseout="hideTip(event, 'fs27', 99)" onmouseover="showTip(event, 'fs27', 99)" class="t">List</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs41', 100)" onmouseover="showTip(event, 'fs41', 100)" class="i">empty</span> <span class="k">then</span> 
+        <span onmouseout="hideTip(event, 'fs26', 101)" onmouseover="showTip(event, 'fs26', 101)" class="i">code</span>
+    <span class="k">else</span>
+        <span onmouseout="hideTip(event, 'fs40', 102)" onmouseover="showTip(event, 'fs40', 102)" class="i">filesChanged</span>
+        <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs27', 103)" onmouseover="showTip(event, 'fs27', 103)" class="t">List</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs28', 104)" onmouseover="showTip(event, 'fs28', 104)" class="f">map</span> <span onmouseout="hideTip(event, 'fs32', 105)" onmouseover="showTip(event, 'fs32', 105)" class="f">numStat</span>
+        <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs27', 106)" onmouseover="showTip(event, 'fs27', 106)" class="t">List</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs31', 107)" onmouseover="showTip(event, 'fs31', 107)" class="f">append</span> [<span class="s">&quot;&quot;</span>;<span class="s">&quot;Files changed:&quot;</span>;<span class="s">&quot;&quot;</span>]
+        <span class="o">|&gt;</span> <span onmouseout="hideTip(event, 'fs27', 108)" onmouseover="showTip(event, 'fs27', 108)" class="t">List</span><span class="o">.</span><span onmouseout="hideTip(event, 'fs31', 109)" onmouseover="showTip(event, 'fs31', 109)" class="f">append</span> <span onmouseout="hideTip(event, 'fs26', 110)" onmouseover="showTip(event, 'fs26', 110)" class="i">code</span>
+</code></pre></td>
+</tr>
+</table>
+<p>And finally insert a list of modified source files within a single commit.</p>
+<p>The code is available on GitHub.
+For lack of a better name I've named it <a href="https://github.com/theimowski/experimental-gitbook">experimental-gitbook</a>.</p>
+<h2>Downsides</h2>
+<p>While the whole idea looks good, there are a few issues which make less promising:</p>
+<ul>
+<li>Any amends, be it source code or tutorial content require rebasing Git history and rewriting it on remote (which is not recommended in general),</li>
+<li>First bullet in turn means that there would be no easy way to contribute to the repository, as any new commit would imply a new section,</li>
+<li>There's no support for multi language book (commit message is currently only in English), which is really a shame taking into account fact that the tutorial has already been translated to <a href="https://theimowski.gitbooks.io/suave-music-store/content/ja/">Japanese</a></li>
+</ul>
+<h2>Summary</h2>
+<p>In this entry I've shared with you my pre-release idea for maintaining GitBook based tutorials.
+Plans for nearest future are to polish the script and then use it to prepare tutorial for Suave v2.0.
+However, as stated above, I'm not really sure where this approach leads me to.
+What I'm hoping is that the idea could help me maintain the tutorial, as well as creating awesome tutorials for other F# libraries / components.</p>
+<p>Not all the details have been shared, and I apologize for a bit of speeding (I bet you can point out a lot of quirks in above text), but I really wanted to deliver this post on time for F# Advent :-)</p>
+<p>Till next time!</p>
+
+<div class="tip" id="fs1">val commits : obj<br /><br />Full name: creatingatutorialfromgitrepo.commits</div>
+<div class="tip" id="fs2">val msg : obj list<br /><br />Full name: creatingatutorialfromgitrepo.msg</div>
+<div class="tip" id="fs3">module Seq<br /><br />from Microsoft.FSharp.Collections</div>
+<div class="tip" id="fs4">val toList : source:seq&lt;&#39;T&gt; -&gt; &#39;T list<br /><br />Full name: Microsoft.FSharp.Collections.Seq.toList</div>
+<div class="tip" id="fs5">val firstLine : obj<br /><br />Full name: creatingatutorialfromgitrepo.firstLine</div>
+<div class="tip" id="fs6">val item : index:int -&gt; source:seq&lt;&#39;T&gt; -&gt; &#39;T<br /><br />Full name: Microsoft.FSharp.Collections.Seq.item</div>
+<div class="tip" id="fs7">val level : int<br /><br />Full name: creatingatutorialfromgitrepo.level</div>
+<div class="tip" id="fs8">val max : e1:&#39;T -&gt; e2:&#39;T -&gt; &#39;T (requires comparison)<br /><br />Full name: Microsoft.FSharp.Core.Operators.max</div>
+<div class="tip" id="fs9">val title : obj<br /><br />Full name: creatingatutorialfromgitrepo.title</div>
+<div class="tip" id="fs10">val fileContentsAt : commit:&#39;a -&gt; file:&#39;b -&gt; &#39;c<br /><br />Full name: creatingatutorialfromgitrepo.fileContentsAt</div>
+<div class="tip" id="fs11">val commit : &#39;a</div>
+<div class="tip" id="fs12">val file : &#39;b</div>
+<div class="tip" id="fs13">val sprintf : format:Printf.StringFormat&lt;&#39;T&gt; -&gt; &#39;T<br /><br />Full name: Microsoft.FSharp.Core.ExtraTopLevelOperators.sprintf</div>
+<div class="tip" id="fs14">val insertSnippet : commit:string -&gt; line:string -&gt; string<br /><br />Full name: creatingatutorialfromgitrepo.insertSnippet</div>
+<div class="tip" id="fs15">val commit : string</div>
+<div class="tip" id="fs16">Multiple items<br />val string : value:&#39;T -&gt; string<br /><br />Full name: Microsoft.FSharp.Core.Operators.string<br /><br />--------------------<br />type string = System.String<br /><br />Full name: Microsoft.FSharp.Core.string</div>
+<div class="tip" id="fs17">val line : string</div>
+<div class="tip" id="fs18">System.String.StartsWith(value: string) : bool<br />System.String.StartsWith(value: string, comparisonType: System.StringComparison) : bool<br />System.String.StartsWith(value: string, ignoreCase: bool, culture: System.Globalization.CultureInfo) : bool</div>
+<div class="tip" id="fs19">val contents : obj</div>
+<div class="tip" id="fs20">val snipId : obj</div>
+<div class="tip" id="fs21">val skip : count:int -&gt; source:seq&lt;&#39;T&gt; -&gt; seq&lt;&#39;T&gt;<br /><br />Full name: Microsoft.FSharp.Collections.Seq.skip</div>
+<div class="tip" id="fs22">val take : count:int -&gt; source:seq&lt;&#39;T&gt; -&gt; seq&lt;&#39;T&gt;<br /><br />Full name: Microsoft.FSharp.Collections.Seq.take</div>
+<div class="tip" id="fs23">System.String.Substring(startIndex: int) : string<br />System.String.Substring(startIndex: int, length: int) : string</div>
+<div class="tip" id="fs24">val failwithf : format:Printf.StringFormat&lt;&#39;T,&#39;Result&gt; -&gt; &#39;T<br /><br />Full name: Microsoft.FSharp.Core.ExtraTopLevelOperators.failwithf</div>
+<div class="tip" id="fs25">val insertSnippets : commit:string -&gt; code:string list -&gt; string list<br /><br />Full name: creatingatutorialfromgitrepo.insertSnippets</div>
+<div class="tip" id="fs26">val code : string list</div>
+<div class="tip" id="fs27">Multiple items<br />module List<br /><br />from Microsoft.FSharp.Collections<br /><br />--------------------<br />type List&lt;&#39;T&gt; =<br />&#160;&#160;| ( [] )<br />&#160;&#160;| ( :: ) of Head: &#39;T * Tail: &#39;T list<br />&#160;&#160;interface IEnumerable<br />&#160;&#160;interface IEnumerable&lt;&#39;T&gt;<br />&#160;&#160;member GetSlice : startIndex:int option * endIndex:int option -&gt; &#39;T list<br />&#160;&#160;member Head : &#39;T<br />&#160;&#160;member IsEmpty : bool<br />&#160;&#160;member Item : index:int -&gt; &#39;T with get<br />&#160;&#160;member Length : int<br />&#160;&#160;member Tail : &#39;T list<br />&#160;&#160;static member Cons : head:&#39;T * tail:&#39;T list -&gt; &#39;T list<br />&#160;&#160;static member Empty : &#39;T list<br /><br />Full name: Microsoft.FSharp.Collections.List&lt;_&gt;</div>
+<div class="tip" id="fs28">val map : mapping:(&#39;T -&gt; &#39;U) -&gt; list:&#39;T list -&gt; &#39;U list<br /><br />Full name: Microsoft.FSharp.Collections.List.map</div>
+<div class="tip" id="fs29">val insertGithubCommit : commit:string -&gt; code:string list -&gt; string list<br /><br />Full name: creatingatutorialfromgitrepo.insertGithubCommit</div>
+<div class="tip" id="fs30">val singleton : value:&#39;T -&gt; &#39;T list<br /><br />Full name: Microsoft.FSharp.Collections.List.singleton</div>
+<div class="tip" id="fs31">val append : list1:&#39;T list -&gt; list2:&#39;T list -&gt; &#39;T list<br /><br />Full name: Microsoft.FSharp.Collections.List.append</div>
+<div class="tip" id="fs32">val numStat : line:&#39;a -&gt; string<br /><br />Full name: creatingatutorialfromgitrepo.numStat</div>
+<div class="tip" id="fs33">val line : &#39;a</div>
+<div class="tip" id="fs34">val split : (&#39;a -&gt; string * string)</div>
+<div class="tip" id="fs35">val human : (string -&gt; string)</div>
+<div class="tip" id="fs36">val x : string</div>
+<div class="tip" id="fs37">val stat : string</div>
+<div class="tip" id="fs38">val name : string</div>
+<div class="tip" id="fs39">val insertGitDiff : commit:&#39;a -&gt; code:string list -&gt; string list<br /><br />Full name: creatingatutorialfromgitrepo.insertGitDiff</div>
+<div class="tip" id="fs40">val filesChanged : obj list</div>
+<div class="tip" id="fs41">val empty&lt;&#39;T&gt; : &#39;T list<br /><br />Full name: Microsoft.FSharp.Collections.List.empty</div>
+
+  
+  <div id="disqus_thread"></div>
+    <script>
+        var disqus_config = function () {
+            this.page.url = "http://theimowski.com/blog/2016/12-19-creating-a-tutorial-from-git-repo/index.html";
+            this.page.identifier = "2016/12-19-creating-a-tutorial-from-git-repo";
+        };
+        (function() {  // DON'T EDIT BELOW THIS LINE
+            var d = document, s = d.createElement('script');
+            
+            s.src = '//theimowski.disqus.com/embed.js';
+            
+            s.setAttribute('data-timestamp', +new Date());
+            (d.head || d.body).appendChild(s);
+        })();
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+</div>
+      </div>
+    </div>
+
+    <label for="sidebar-checkbox" class="sidebar-toggle"></label>
+
+    <script>
+      (function(document) {
+        var toggle = document.querySelector('.sidebar-toggle');
+        var sidebar = document.querySelector('#sidebar');
+        var checkbox = document.querySelector('#sidebar-checkbox');
+
+        document.addEventListener('click', function(e) {
+          var target = e.target;
+
+          if(!checkbox.checked ||
+             sidebar.contains(target) ||
+             (target === checkbox || target === toggle)) return;
+
+          checkbox.checked = false;
+        }, false);
+      })(document);
+    </script>
+  </body>
+</html>
