@@ -7,7 +7,7 @@
     <!-- Enable responsiveness on mobile devices-->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
   
-    <title>Tomasz Heimowski blog</title>
+    <title>Suave Music Store Tutorial - 2nd version</title>
   
     <!-- CSS -->
     <link rel="stylesheet" href="/css/poole.css">
@@ -96,76 +96,66 @@
       <div class="container content">
         
 
-<div class="page">
+<div class="post">
+  <h1 class="post-title">Suave Music Store Tutorial - 2nd version</h1>
   
+<p>In this entry, I'm introducing recently published version 2 of my Suave Music Store <a href="https://www.gitbook.com/book/theimowski/suave-music-store">tutorial</a></p>
+<!--more-->
+<p>I've shown little activity recently in OSS contributions.
+That's partly cuz I got married on May this year, so I had little to no spare time for auxialiry work.
+Now that I finally found some time, I've finalized what I've been working on for long before - 2nd version of <a href="https://www.gitbook.com/book/theimowski/suave-music-store">Suave Music Store Tutorial</a>.</p>
+<h2>New foundations + Acknowledgments</h2>
+<p>The second version includes <strong>a lot</strong> of changes, compared the original publication.
+By listing the changes, I'd also like to thank people from the F# community responsible for corresponding projects.</p>
+<ul>
+<li>
+New versions of libraries:
+<ul>
+<li>Suave 2.2.1 (thank you <a href="https://twitter.com/henrikfeldt">Henrik Feldt</a> and <a href="https://twitter.com/ad3mar/">Ademar Gonzalez</a> for creating such a wonderful web lib)</li>
+<li>FSharp.Core 4.2.3 together with .NET SDK-based project (thanks go to <a href="https://twitter.com/dsyme">Don Syme</a>, <a href="https://twitter.com/enricosada">Enrico Sada</a> and <a href="https://twitter.com/kot_2010">Vasily Kirichenko</a> for making that possible)</li>
+<li>SQLProvider 1.1.8 (thanks <a href="https://twitter.com/pezi_pink">Ross McKinlay</a>, <a href="https://twitter.com/colinbul">Colin Bull</a> and <a href="https://twitter.com/Thoriumi">Tuomas Hietanen</a>)</li>
+</ul>
+</li>
+<li>
+Tutorial is no longer Windows-based, meaning I did my best to provide x-plat tutorial for everyone:
+<ul>
+<li>Visual Studio has been replaced with Visual Studio Code editor (note the <code>Code</code> suffix ;)), together with an awesome <a href="http://ionide.io/">Ionide</a> F# extension (<a href="https://twitter.com/k_cieslak">Krzysztof Cieślak</a> - dzięki!)</li>
+<li>Paket + FAKE is used by default now, instead of VS-based NuGet and MsBuild solutions (thanks <a href="https://twitter.com/sforkmann">Steffen Forkmann</a> and all Paket contributors)</li>
+<li>SQL Server has been replaced with Postgres (thanks to <a href="https://twitter.com/lefthandedgoat">Chris Holt</a> contribution)</li>
+</ul>
+</li>
+<li>Standard GitBook-formatted F# code <strong>snippets</strong> have been replaced with much nicer and richer FSharp.Formatting equivalent. In addition to that, the project allowed to render <strong>tooltips</strong> for every snippet. (thank you <a href="https://twitter.com/tomaspetricek">Tomas Petricek</a>)</li>
+</ul>
+<p>As you can see, multiple components of the tutorial exists thanks to effort of the awesome F# community - thank you all above and everyone I forgot to add.</p>
+<h2>How snippets work</h2>
+<p><img src="snippets.png" alt="snippets" /></p>
+<p>To make things work, I used the orginal idea described <a href="http://theimowski.com/blog/2016/12-19-creating-a-tutorial-from-git-repo/index.html">in my previous post</a>.
+I paid attention to the coment under that entry however and changed the way tutorial contents are maintained.
+You can read more on how the process works in the <a href="https://github.com/theimowski/SuaveMusicStore/blob/contents/CONTRIBUTING.md">Contribution guideline on GitHub</a>.</p>
+<h2>Next steps</h2>
+<p>I'm hoping this new solution will make it easier to update the tutorial in future.
+The build script is currently quite a mess, however I'd like to extract the core logic for processing the content and snippets into a separate library.</p>
+<p>That would allow to create more F# tutorials for other library and tools in the ecosystem in a consistent way.
+Axtually, that's one of my main goal on the list to create another tutorial like this - who knows, maybe <a href="https://safe-stack.github.io/">SAFE stack</a> will get its version soon?</p>
 
-<div class="posts">
-        <div class="post">
-            <h1 class="post-title">
-                <a href="2017/10-09-suave-music-store-tutorial-2nd-version/index.html">Suave Music Store Tutorial - 2nd version</a>
-            </h1>
-    
-            <span class="post-date">    <time datetime="2017-10-09T10:45:35" pubdate data-updated="true">9 Oct 2017</time>
-</span>
+
+  
+  <div id="disqus_thread"></div>
+    <script>
+        var disqus_config = function () {
+            this.page.url = "http://theimowski.com/blog/2017/10-09-suave-music-store-tutorial-2nd-version/index.html";
+            this.page.identifier = "2017/10-09-suave-music-store-tutorial-2nd-version";
+        };
+        (function() {  // DON'T EDIT BELOW THIS LINE
+            var d = document, s = d.createElement('script');
             
-            <p>In this entry, I'm introducing recently published version 2 of my Suave Music Store <a href="https://www.gitbook.com/book/theimowski/suave-music-store">tutorial</a></p>
-
-
-
+            s.src = '//theimowski.disqus.com/embed.js';
             
-            <a href="2017/10-09-suave-music-store-tutorial-2nd-version/index.html">Read more...</a>
-        </div>
-        <div class="post">
-            <h1 class="post-title">
-                <a href="2016/12-19-creating-a-tutorial-from-git-repo/index.html">Creating a tutorial from Git repo</a>
-            </h1>
-    
-            <span class="post-date">    <time datetime="2016-12-19T07:50:48" pubdate data-updated="true">19 Dec 2016</time>
-</span>
-            
-            <p>What if author of a programming book could maintain his content and related code in the same place?
-In this entry I'll share with you my experimental idea for code-heavy F# tutorials.</p>
-
-
-
-            
-            <a href="2016/12-19-creating-a-tutorial-from-git-repo/index.html">Read more...</a>
-        </div>
-        <div class="post">
-            <h1 class="post-title">
-                <a href="2016/05-19-paket-workflow-for-testing-new-nuget-package-before-release/index.html">Paket workflow for testing new NuGet package before release</a>
-            </h1>
-    
-            <span class="post-date">    <time datetime="2016-05-21T08:45:31" pubdate data-updated="true">21 May 2016</time>
-</span>
-            
-            <p>Modularity is becoming more and more popular nowadays.
-Managing separately maintained components in .NET ecosystem is usually achieved by using <strong>NuGet</strong> packages.
-Unfortunately with current NuGet approach, there's no easy way of testing new changes in referenced projects.
-Today I want to show you how we can make our lifes easier with brand new <a href="http://fsprojects.github.io/Paket/">Paket</a> feature: <a href="http://fsprojects.github.io/Paket/local-file.html">paket.local</a>.</p>
-
-
-
-            
-            <a href="2016/05-19-paket-workflow-for-testing-new-nuget-package-before-release/index.html">Read more...</a>
-        </div>
-        <div class="post">
-            <h1 class="post-title">
-                <a href="2016/01-18-continuous-delivery-with-fake-paket-and-teamcity/index.html">Continuous delivery with FAKE, Paket and TeamCity</a>
-            </h1>
-    
-            <span class="post-date">    <time datetime="2016-01-22T18:24:38" pubdate data-updated="true">22 Jan 2016</time>
-</span>
-            
-            <p>Efficient continuous delivery process can speed up greatly development cycle, improve feedback loop and help to manage automatic deployments.<br />
-In this entry I'll present how one can configure a continuous delivery chain using combination of following tools: <a href="http://fsharp.github.io/FAKE/">FAKE</a>, <a href="http://fsprojects.github.io/Paket/">Paket</a> and <a href="https://www.jetbrains.com/teamcity/">TeamCity</a>.</p>
-
-
-
-            
-            <a href="2016/01-18-continuous-delivery-with-fake-paket-and-teamcity/index.html">Read more...</a>
-        </div>
-</div>
+            s.setAttribute('data-timestamp', +new Date());
+            (d.head || d.body).appendChild(s);
+        })();
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
 </div>
       </div>
     </div>

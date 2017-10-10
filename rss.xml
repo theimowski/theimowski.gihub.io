@@ -5,6 +5,16 @@
     <description>FsBlog aims to be a blog-aware static site generator, mostly built in F#. But don't worry, you won't even need to know any F# to get up and running. So long as you are comfortable using a command line or terminal, and have a degree of familiarity with Markdown and Razor syntax - you're good to go!
 </description>
     <item>
+      <title>Suave Music Store Tutorial - 2nd version</title>
+      <guid>http://theimowski.com//blog/2017/10-09-suave-music-store-tutorial-2nd-version</guid>
+      <link>http://theimowski.com//blog/2017/10-09-suave-music-store-tutorial-2nd-version/index.html</link>
+      <pubDate>Mon, 09 Oct 2017 08:45:35 GMT</pubDate>
+      <description>&lt;p&gt;In this entry, I'm introducing recently published version 2 of my Suave Music Store &lt;a href="https://www.gitbook.com/book/theimowski/suave-music-store"&gt;tutorial&lt;/a&gt;&lt;/p&gt;
+
+
+</description>
+    </item>
+    <item>
       <title>Creating a tutorial from Git repo</title>
       <guid>http://theimowski.com//blog/2016/12-19-creating-a-tutorial-from-git-repo</guid>
       <link>http://theimowski.com//blog/2016/12-19-creating-a-tutorial-from-git-repo/index.html</link>
