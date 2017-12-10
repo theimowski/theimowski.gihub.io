@@ -5,6 +5,18 @@
     <description>FsBlog aims to be a blog-aware static site generator, mostly built in F#. But don't worry, you won't even need to know any F# to get up and running. So long as you are comfortable using a command line or terminal, and have a degree of familiarity with Markdown and Razor syntax - you're good to go!
 </description>
     <item>
+      <title>Splitting Date Ranges</title>
+      <guid>http://theimowski.com//blog/2017/12-17-splitting-date-ranges</guid>
+      <link>http://theimowski.com//blog/2017/12-17-splitting-date-ranges/index.html</link>
+      <pubDate>Sun, 17 Dec 2017 03:03:37 GMT</pubDate>
+      <description>&lt;p&gt;The power and beauty of F# pattern matching are often underestimated.
+To shine more light on them I decided to share code fragments which exercise pattern matching to deal with date ranges.
+This will be a simple divide and conquer implementation for a workaround over poorly designed API.&lt;/p&gt;
+
+
+</description>
+    </item>
+    <item>
       <title>Suave Music Store Tutorial - 2nd version</title>
       <guid>http://theimowski.com//blog/2017/10-09-suave-music-store-tutorial-2nd-version</guid>
       <link>http://theimowski.com//blog/2017/10-09-suave-music-store-tutorial-2nd-version/index.html</link>
