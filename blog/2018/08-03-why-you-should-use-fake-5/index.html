@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+  <head>
+    <link href="http://gmpg.org/xfn/11" rel="profile">
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  
+    <!-- Enable responsiveness on mobile devices-->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+  
+    <title>Why you should use FAKE 5</title>
+  
+    <!-- CSS -->
+    <link rel="stylesheet" href="/css/poole.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/lanyon.css">
+    <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=PT+Serif:400,400italic,700|PT+Sans:400">
+    
+    <!-- FSharp.Formatting Styles -->
+    <link rel="stylesheet" type="text/css" media="screen" href="/fsharp.formatting/tooltips.css" />
+  	<script type="text/javascript" src="/fsharp.formatting/tooltips.js"></script>
+    <script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+      
+    <!-- Icons -->
+    <link rel="apple-touch-icon" sizes="57x57" href="/apple-touch-icon-57x57.png">
+    <link rel="apple-touch-icon" sizes="60x60" href="/apple-touch-icon-60x60.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="/apple-touch-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="76x76" href="/apple-touch-icon-76x76.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="/apple-touch-icon-114x114.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="/apple-touch-icon-120x120.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="/apple-touch-icon-144x144.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="/apple-touch-icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon-180x180.png">
+    <link rel="icon" type="image/png" href="/favicon-32x32.png" sizes="32x32">
+    <link rel="icon" type="image/png" href="/android-chrome-192x192.png" sizes="192x192">
+    <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96">
+    <link rel="icon" type="image/png" href="/favicon-16x16.png" sizes="16x16">
+    <link rel="manifest" href="/manifest.json">
+    <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+    <meta name="msapplication-TileColor" content="#da532c">
+    <meta name="msapplication-TileImage" content="/mstile-144x144.png">
+    <meta name="theme-color" content="#ffffff">
+  
+    <style type="text/css">
+      table.pre td {
+        border: none;
+      }
+      
+      table.pre code {
+        font: 9pt 'Droid Sans Mono',consolas,monospace;
+      }
+    </style>
+    
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+    
+      ga('create', 'UA-71283003-1', 'auto');
+      ga('send', 'pageview');
+    
+    </script>
+  
+  </head>
+  <body>
+    <input type="checkbox" class="sidebar-checkbox" id="sidebar-checkbox">
+
+    <div class="sidebar" id="sidebar">
+      <div class="sidebar-item">
+        <p>My website - place where I share thoughts on programming</p>
+      </div>
+    
+      <nav class="sidebar-nav">
+        <a class="sidebar-nav-item" href="/blog/index.html">Blog</a>
+        <a class="sidebar-nav-item" href="/about/index.html">About me</a>
+        <a class="sidebar-nav-item" href=https://www.gitbook.com/@theimowski target="_blank">GitBook</a>
+      </nav>
+    
+      <div class="sidebar-item">
+        <p>Created with <a target="_blank" href="https://github.com/fsprojects/FsBlog">FsBlog</a> and <a target="_blank" href="http://lanyon.getpoole.com/">Lanyon</a></p>
+        <p>&copy; Tomasz Heimowski, 2015.</p>
+      </div>
+
+    </div>
+
+    <div class="wrap">
+      <div class="masthead">
+        <div class="container">
+
+          <h3 class="masthead-title">
+            <a href="/index.html" title="Home">Tomasz Heimowski</a>
+          </h3>
+        </div>
+      </div>
+
+      <div class="container content">
+        
+
+<div class="post">
+  <h1 class="post-title">Why you should use FAKE 5</h1>
+  
+<p>If your application targets .NET, chances are you're using <a href="http://fake.build/">FAKE</a> to build it. In this entry I'll show you why it's worth to upgrade to version 5 of FAKE.</p>
+<!--more-->
+<h2>Motivation</h2>
+<p><a href="http://fake.build/">FAKE</a> (F# Make) is a great tool for building .NET applications.
+It's been already in the market for a <a href="https://github.com/fsharp/FAKE/commit/0ad4df0c95d866dff495a31eb7a8373aa2e0422a">couple of years now</a>, almost <a href="https://github.com/fsharp/FAKE/releases">2000 releases</a> and <a href="https://github.com/fsharp/FAKE/graphs/contributors">300 contributors</a>. It is an outstanding community effort to fill in a noticeable gap that MsBuild left in the .NET ecosystem.
+Along its <strong>.NET-dedicated</strong> alternatives we can list <a href="https://psake.readthedocs.io/en/latest/">PSake</a> (PowerShell Make) or <a href="https://cakebuild.net/">Cake</a> (C# Make).</p>
+<p>Because FAKE has been growing rapidly since the beginning and because of its initial design, it started getting into a <a href="https://fake.build/fake-fake5-learn-more.html#New-API-Design">technical debt</a>.
+FAKE 4 used to be the most recent stable version and probably remains the most commonly used version in build scripts.</p>
+<p>Decision has been made to create a new major release of FAKE, which would fix previous issues as well as add new important enhancements.
+Even though the new FAKE 5 has a lot of breaking changes compared to its predecessor, it establishes a clean <a href="https://fake.build/fake-migrate-to-fake-5.html">migration path</a>.</p>
+<p>Among the most important advantages for the new version of FAKE, we can list:</p>
+<ul>
+<li><strong>.NET Core</strong> - FAKE 5 is built on top of .NET Core runtime, meaning that one doesn't need full .NET or Mono installed anymore to run the scripts,</li>
+<li><strong>Easier installation</strong> - FAKE 5 can be installed as a <a href="https://fake.build/fake-gettingstarted.html#Install-FAKE">global dotnet tool</a> (my recommendation), which lets you use the same tool across multiple projects,</li>
+<li><strong>Modularity</strong> - FAKE 5 feels much more lightweight: FAKE 4 binary bundled all the functionalities into a single ~80MB NuGet package, which started to be an issue when you wanted to pull in new version or had tens of different versions for different projects installed. Now each set of functionality comes in a dedicated NuGet package,</li>
+<li><strong>Paket integration</strong> - You can now embed <a href="https://fake.build/fake-gettingstarted.html#Getting-started">Paket references</a> into a FAKE script without having separate Paket executable. You can do this having just .NET Core installed, as standalone Paket still requires <a href="https://github.com/fsprojects/Paket/pull/3183">full .NET / Mono</a>.</li>
+</ul>
+<blockquote>
+<p>Note: if using Paket for FAKE dependencies, consider using <a href="https://fsprojects.github.io/Paket/dependencies-file.html#Disable-packages-folder"><code>storage: none</code></a> option to disable packages folder and instead reuse NuGet packages between different projects.</p>
+</blockquote>
+<h2>Migration</h2>
+<p>If you're currently using FAKE 4, there is some work you need to do to upgrade.
+As already mentioned, there's a nice guide on migrating to FAKE 5 available <a href="https://fake.build/fake-migrate-to-fake-5.html">here</a>. It boils down to 3 primary steps:</p>
+<ol>
+<li>Update to legacy FAKE 5,</li>
+<li>Fix all the (obsolete) warnings,</li>
+<li>Use new version of FAKE 5.</li>
+</ol>
+<p>This guide should be just enough to help you with your migration. I've collected my notes on migrating a specific project below.</p>
+<h3>Step 1: Update to legacy FAKE 5</h3>
+<p>This one is a no-brainer: FAKE 5 is still released as a stand-alone package to mitigate the migration.
+Because I use Paket, it was just a matter of invoking <code>paket update</code>.
+This version of FAKE package is called <em>legacy</em>, as from FAKE 6 onwards that package will no longer be available.</p>
+<blockquote>
+<p>Note: I encourage to use a separate <code>Build</code> Paket Group for all dependencies (including FAKE) that are used just for the build process - this gives you a clearer picture of your overall dependencies.</p>
+</blockquote>
+<h3>Step 2: Fix all the (obsolete) warnings</h3>
+<p>You'll probably spend most of the migration time here.
+The <a href="https://fake.build/fake-migrate-to-fake-5.html#Use-the-new-FAKE-API">guide</a> does already pretty good job describing what this process should look like, so I won't repeat that. Instead let me just emphasize key points to remember about, so that this step doesn't make you a headache:</p>
+<ol>
+<li><strong>Namespace conflicts</strong> - beware that FAKE 4 used a lot of <code>[&lt;AutoOpen&gt;]</code> attributes to bring in a huge number of functionality OOTB. If the compiler is complaining about used classes, try providing a fully qualified name up until you finally remove the <code>open Fake</code> statement,</li>
+<li><strong>Common operators</strong> - operators such as <code>&lt;/&gt;</code>, <code>!!</code> or <code>++</code> sit now in a separate place. You might find <code>Fake.IO.FileSystemOperators</code> and <code>Fake.IO.Globbing.Operators</code> namespaces helpful,</li>
+<li><strong>Creating targets</strong> - the new way of creating targets by <code>Target.create</code> is not compatible with previous approach: if you're using new API to declare target dependencies, make sure you already create targets with new API as well.</li>
+</ol>
+<h3>Step 3: Use new version of FAKE 5</h3>
+<p>There is a <a href="https://fake.build/fake-gettingstarted.html#Install-FAKE">variety of options</a> here. I'd generally recommend installing FAKE as a global dotnet tool, as you'd be able to reuse it between various projects. Of course keep in mind, you'll need to make the new FAKE available on your build server.</p>
+<h2>Summary</h2>
+<p>FAKE remains my favorite building tool in the .NET ecosystem.
+The brand new 5th version brings to the table a plenty of considerable advantages.
+Because .NET Core is getting its momentum, I'd highly encourage you to take your time and migrate to FAKE 5 - you won't regret it.</p>
+<p>All the credits go to <a href="https://github.com/fsharp/FAKE/graphs/contributors">FAKE contributors</a></p>
+<p>Till next time!</p>
+
+
+  
+  <div id="disqus_thread"></div>
+    <script>
+        var disqus_config = function () {
+            this.page.url = "http://theimowski.com/blog/2018/08-03-why-you-should-use-fake-5/index.html";
+            this.page.identifier = "2018/08-03-why-you-should-use-fake-5";
+        };
+        (function() {  // DON'T EDIT BELOW THIS LINE
+            var d = document, s = d.createElement('script');
+            
+            s.src = '//theimowski.disqus.com/embed.js';
+            
+            s.setAttribute('data-timestamp', +new Date());
+            (d.head || d.body).appendChild(s);
+        })();
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+</div>
+      </div>
+    </div>
+
+    <label for="sidebar-checkbox" class="sidebar-toggle"></label>
+
+    <script>
+      (function(document) {
+        var toggle = document.querySelector('.sidebar-toggle');
+        var sidebar = document.querySelector('#sidebar');
+        var checkbox = document.querySelector('#sidebar-checkbox');
+
+        document.addEventListener('click', function(e) {
+          var target = e.target;
+
+          if(!checkbox.checked ||
+             sidebar.contains(target) ||
+             (target === checkbox || target === toggle)) return;
+
+          checkbox.checked = false;
+        }, false);
+      })(document);
+    </script>
+  </body>
+</html>

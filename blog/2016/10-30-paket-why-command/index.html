@@ -162,14 +162,13 @@ Note that <code>TopLevel</code> will always be a direct package, but <code>Direc
 </pre></td>
 <td class="snippet"><pre class="fssnip highlighted"><code lang="paket"><span class="k">source</span> http://nuget.org/api/v2
 
-<span class="k">nuget </span>Knockout
-<span class="k">nuget </span>Argu
-<span class="k">nuget </span>Nancy.Viewengines.Razor
-<span class="k">nuget </span>Microsoft.AspNet.Razor <span class="n">2.0.30506</span>
-<span class="k">nuget </span>Microsoft.AspNet.WebPages <span class="n">2.0.30506</span>
+<span class="k">nuget</span> Knockout
+<span class="k">nuget</span> Argu
+<span class="k">nuget</span> Nancy.Viewengines.Razor
+<span class="k">nuget</span> Microsoft.AspNet.Razor <span class="n">2.0.30506</span>
+<span class="k">nuget</span> Microsoft.AspNet.WebPages <span class="n">2.0.30506</span>
 
-<span class="c">// more dependencies ...</span>
-</code></pre></td></tr></table>
+<span class="c">// more dependencies ...</span></code></pre></td></tr></table>
 <p>The <a href="https://github.com/fsharp/FAKE/blob/master/paket.dependencies">paket.dependencies</a> file for FAKE enlists some dependencies - we say that these are "direct" dependencies.</p>
 <p>Dependency resolution for FAKE project can be found in <a href="https://github.com/fsharp/FAKE/blob/master/paket.lock">paket.lock</a>:</p>
 <table class="pre"><tr><td class="lines"><pre class="fssnip"><span class="l"> 1: </span>
@@ -212,8 +211,7 @@ Note that <code>TopLevel</code> will always be a direct package, but <code>Direc
       Microsoft.AspNet.Razor (<span class="o">&gt;=</span> <span class="n">2.0.30506</span>) - <span class="k">framework</span>: <span class="o">&gt;=</span> net40
       Nancy (<span class="o">&gt;=</span> <span class="n">1.4.3</span>)
 
-    <span class="c">// more resolution entries ...</span>
-</code></pre></td></tr></table>
+    <span class="c">// more resolution entries ...</span></code></pre></td></tr></table>
 <p>Note that above is just an excerpt from the whole file.
 While paket.lock is very precise on the dependencies resolution, it might be hard for a human to comprehend what is the dependency chain for a given package.</p>
 <p>Thanks to the <strong>"why"</strong> command, we can get a nice overview of dependencies resolved by Paket:</p>

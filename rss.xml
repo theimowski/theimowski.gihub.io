@@ -5,6 +5,16 @@
     <description>FsBlog aims to be a blog-aware static site generator, mostly built in F#. But don't worry, you won't even need to know any F# to get up and running. So long as you are comfortable using a command line or terminal, and have a degree of familiarity with Markdown and Razor syntax - you're good to go!
 </description>
     <item>
+      <title>Why you should use FAKE 5</title>
+      <guid>http://theimowski.com//blog/2018/08-03-why-you-should-use-fake-5</guid>
+      <link>http://theimowski.com//blog/2018/08-03-why-you-should-use-fake-5/index.html</link>
+      <pubDate>Fri, 03 Aug 2018 08:48:42 GMT</pubDate>
+      <description>&lt;p&gt;If your application targets .NET, chances are you're using &lt;a href="http://fake.build/"&gt;FAKE&lt;/a&gt; to build it. In this entry I'll show you why it's worth to upgrade to version 5 of FAKE.&lt;/p&gt;
+
+
+</description>
+    </item>
+    <item>
       <title>SAFE apps with F# web stack</title>
       <guid>http://theimowski.com//blog/2018/03-03-safe-apps-with-f-web-stack</guid>
       <link>http://theimowski.com//blog/2018/03-03-safe-apps-with-f-web-stack/index.html</link>
