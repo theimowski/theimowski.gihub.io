@@ -5,6 +5,16 @@
     <description>FsBlog aims to be a blog-aware static site generator, mostly built in F#. But don't worry, you won't even need to know any F# to get up and running. So long as you are comfortable using a command line or terminal, and have a degree of familiarity with Markdown and Razor syntax - you're good to go!
 </description>
     <item>
+      <title>SAFE Template - a year retrospective</title>
+      <guid>http://theimowski.com//blog/2018/12-14-safe-template</guid>
+      <link>http://theimowski.com//blog/2018/12-14-safe-template/index.html</link>
+      <pubDate>Fri, 14 Dec 2018 03:15:13 GMT</pubDate>
+      <description>&lt;p&gt;In this blog entry, we'll take a look at &lt;a href="https://github.com/SAFE-Stack/SAFE-template"&gt;SAFE Template&lt;/a&gt; - how it got created, what's the current state and what does it take to release a stable 1.0 version.&lt;/p&gt;
+
+
+</description>
+    </item>
+    <item>
       <title>Why you should use FAKE 5</title>
       <guid>http://theimowski.com//blog/2018/08-03-why-you-should-use-fake-5</guid>
       <link>http://theimowski.com//blog/2018/08-03-why-you-should-use-fake-5/index.html</link>

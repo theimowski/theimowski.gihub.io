@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+  <head>
+    <link href="http://gmpg.org/xfn/11" rel="profile">
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+  
+    <!-- Enable responsiveness on mobile devices-->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+  
+    <title>SAFE Template - a year retrospective</title>
+  
+    <!-- CSS -->
+    <link rel="stylesheet" href="/css/poole.css">
+    <link rel="stylesheet" href="/css/syntax.css">
+    <link rel="stylesheet" href="/css/lanyon.css">
+    <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=PT+Serif:400,400italic,700|PT+Sans:400">
+    
+    <!-- FSharp.Formatting Styles -->
+    <link rel="stylesheet" type="text/css" media="screen" href="/fsharp.formatting/tooltips.css" />
+  	<script type="text/javascript" src="/fsharp.formatting/tooltips.js"></script>
+    <script type="text/javascript" src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+      
+    <!-- Icons -->
+    <link rel="apple-touch-icon" sizes="57x57" href="/apple-icon-57x57.png">
+    <link rel="apple-touch-icon" sizes="60x60" href="/apple-icon-60x60.png">
+    <link rel="apple-touch-icon" sizes="72x72" href="/apple-icon-72x72.png">
+    <link rel="apple-touch-icon" sizes="76x76" href="/apple-icon-76x76.png">
+    <link rel="apple-touch-icon" sizes="114x114" href="/apple-icon-114x114.png">
+    <link rel="apple-touch-icon" sizes="120x120" href="/apple-icon-120x120.png">
+    <link rel="apple-touch-icon" sizes="144x144" href="/apple-icon-144x144.png">
+    <link rel="apple-touch-icon" sizes="152x152" href="/apple-icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-icon-180x180.png">
+    <link rel="icon" type="image/png" sizes="192x192"  href="/android-icon-192x192.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="96x96" href="/favicon-96x96.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="msapplication-TileColor" content="#ffffff">
+    <meta name="msapplication-TileImage" content="/ms-icon-144x144.png">
+    <meta name="theme-color" content="#ffffff">
+  
+    <style type="text/css">
+      table.pre td {
+        border: none;
+      }
+      
+      table.pre code {
+        font: 9pt 'Droid Sans Mono',consolas,monospace;
+      }
+    </style>
+    
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+    
+      ga('create', 'UA-71283003-1', 'auto');
+      ga('send', 'pageview');
+    
+    </script>
+  
+  </head>
+  <body>
+    <input type="checkbox" class="sidebar-checkbox" id="sidebar-checkbox">
+
+    <div class="sidebar" id="sidebar">
+      <div class="sidebar-item">
+        <p>My website - place where I share thoughts on programming</p>
+      </div>
+    
+      <nav class="sidebar-nav">
+        <a class="sidebar-nav-item" href="/blog/index.html">Blog</a>
+        <a class="sidebar-nav-item" href="/about/index.html">About me</a>
+        <a class="sidebar-nav-item" href=https://legacy.gitbook.com/@theimowski target="_blank">GitBook</a>
+        <a class="sidebar-nav-item" href="/about/privacy/index.html">Privacy</a>
+      </nav>
+    
+      <div class="sidebar-item">
+        <p>Created with <a target="_blank" href="https://github.com/fsprojects/FsBlog">FsBlog</a> and <a target="_blank" href="http://lanyon.getpoole.com/">Lanyon</a></p>
+        <p>&copy; Tomasz Heimowski, 2018.</p>
+      </div>
+
+    </div>
+
+    <div class="wrap">
+      <div class="masthead">
+        <div class="container">
+
+          <h3 class="masthead-title">
+            <a href="/index.html" title="Home">Tomasz Heimowski</a>
+          </h3>
+        </div>
+      </div>
+
+      <div class="container content">
+        
+
+<div class="post">
+  <h1 class="post-title">SAFE Template - a year retrospective</h1>
+  
+<p>In this blog entry, we'll take a look at <a href="https://github.com/SAFE-Stack/SAFE-template">SAFE Template</a> - how it got created, what's the current state and what does it take to release a stable 1.0 version.</p>
+<!--more-->
+<div class="message">
+<p>This post is part of the <a href="https://sergeytihon.com/2018/10/22/f-advent-calendar-in-english-2018/">F# Advent Calendar 2018</a> initiative - make sure to go check out rest of posts as well.</p>
+</div>
+<h2>Motivation</h2>
+<p>SAFE is an end-to-end F# stack for web development, that emphasizes type-safety. If you've never heard about it, visit the <a href="https://safe-stack.github.io">homepage</a> and <a href="https://safe-stack.github.io/docs">docs</a> to read more.</p>
+<p>SAFE Stack as an initiative has been officially launched in <a href="https://compositional-it.com/blog/2017/09-22-safe-release/index.html">September 2017</a> at Fable Conf 2017.
+<a href="https://github.com/SAFE-Stack/SAFE-BookStore">SAFE BookStore</a> example app has been around even before that, but it used a different code name. At certain point, the maintainers of SAFE BookStore <a href="https://github.com/SAFE-Stack/SAFE-BookStore/issues/122">decided</a> it would be nice to have a minimal application, possibly as a template for other people to bootstrap their own SAFE projects.</p>
+<p>Since I really liked the idea of combining F# for both server and client side code, and establishing the "SAFE Stack" seemed a good selling point to me, I gave it a go.
+That's how <a href="https://github.com/SAFE-Stack/SAFE-template">SAFE Template</a> was born.</p>
+<h2>Templating engine</h2>
+<p>Together with the <a href="https://dotnet.microsoft.com/download">new .NET SDK</a>, there appeared a <a href="https://github.com/dotnet/templating">.NET Templating Engine</a> which served the sole purpose of creating new .NET projects from scratch. As the ecosystem is adapting this concept quickly, it seemed to be the obvious way to distribute the SAFE Template.</p>
+<p>Working with the templating engine was not <em>that</em> straight-forward, mainly due to the fact there is still little documentation and available resources on the topic. To me, most helpful appeared following sites:</p>
+<ul>
+<li><a href="https://github.com/dotnet/dotnet-template-samples">.NET Templates samples</a> - a GitHub repository with dozen of sample projects showcasing various features of .NET Templating engine,</li>
+<li><a href="https://github.com/dotnet/templating/wiki/%22Runnable-Project%22-Templates">Runnable Project Templates Wiki</a> - and "in-depth" wiki documentation on important details for developing a .NET template.</li>
+</ul>
+<h2>Current state</h2>
+<p>As of now, SAFE Template has reached version <strong>0.39</strong> and has passed <strong>10.000</strong> of downloads on NuGet</p>
+<p><img src="10K.png" alt="10K downloads" /></p>
+<p>It comes with a wide variety of options, all of which you can browse <a href="https://safe-stack.github.io/docs/template-overview/">here</a>.
+You can also type <code>dotnet new safe --help</code> to see the options in your console.</p>
+<p>Obviously every new feature to the template might potentially bring more attraction.
+However also each new option adds a significant amount of complexity for template to maintain. That's why always we think twice before adding anything new.</p>
+<p>We still haven't released version 1.0, so there's still a room for breaking changes.</p>
+<h2>Road to 1.0</h2>
+<p>What do breaking changes in context of a .NET template mean anyway? Good question! There's a couple of things that we'd like to <strong>make stable</strong> before reaching 1.0:</p>
+<ul>
+<li><strong>CLI interface</strong> - when a template option is present in version 1, we won't change / remove it,</li>
+<li><strong>Tooling</strong> - we'd like to use both FAKE and Paket as dotnet tools, however as of now we still haven't decided on the final recommended set up for these,</li>
+<li><strong>Scripts</strong> - ideally we'd like to have a standard set of FAKE Build targets for both production / development builds,</li>
+<li><strong>WebPack configuration</strong> - this area is still a bit unknown to me, but hopefully we can unify with <a href="https://github.com/fable-compiler/webpack-config-template/blob/master/webpack.config.js">webpack-config-template</a>, which is a recommended configuration for standalone Fable apps.</li>
+</ul>
+<p>In addition to that there are also some <strong>key points</strong> that we want to address with 1.0:</p>
+<ul>
+<li><strong>better adoption</strong> - that's probably quite clear that users may be afraid of using any tool which hasn't reached a stable version yet,</li>
+<li><strong>Saturn 1.0</strong> - as <a href="https://saturnframework.org/">Saturn</a> is now a recommended server option and it's currently in version 0.8, we'd like to wait before it reaches a stable version as well,</li>
+<li><strong>outstanding issues</strong> - obviously, along the way we'll make our best to fix all bugs that arise.</li>
+</ul>
+<h2>Credits</h2>
+<p>I'd like to thank all <a href="https://github.com/SAFE-Stack/SAFE-template/graphs/contributors">28 contributors</a> (as of time of writing - hopefully there'll be more!) to the SAFE template (order by no. commits):</p>
+<ol>
+<li><a href="https://github.com/theimowski">theimowski</a> (me)</li>
+<li><a href="https://github.com/isaacabraham">isaacabraham</a></li>
+<li><a href="https://github.com/Zaid-Ajaj">Zaid-Ajaj</a></li>
+<li><a href="https://github.com/theprash">theprash</a></li>
+<li><a href="https://github.com/0x53A">0x53A</a></li>
+<li><a href="https://github.com/forki">forki</a></li>
+<li><a href="https://github.com/vasily-kirichenko">vasily-kirichenko</a></li>
+<li><a href="https://github.com/psfinaki">psfinaki</a></li>
+<li><a href="https://github.com/MangelMaxime">MangelMaxime</a></li>
+<li><a href="https://github.com/AkosLukacs">AkosLukacs</a></li>
+<li><a href="https://github.com/WalternativE">WalternativE</a></li>
+<li><a href="https://github.com/matthid">matthid</a></li>
+<li><a href="https://github.com/CallumVass">CallumVass</a></li>
+<li><a href="https://github.com/jeremyabbott">jeremyabbott</a></li>
+<li><a href="https://github.com/marcpiechura">marcpiechura</a></li>
+<li><a href="https://github.com/rmunn">rmunn</a></li>
+<li><a href="https://github.com/kunjee17">kunjee17</a></li>
+<li><a href="https://github.com/vilinski">vilinski</a></li>
+<li><a href="https://github.com/colinbull">colinbull</a></li>
+<li><a href="https://github.com/nojaf">nojaf</a></li>
+<li><a href="https://github.com/MNie">MNie</a></li>
+<li><a href="https://github.com/t-smirnov">t-smirnov</a></li>
+<li><a href="https://github.com/landy">landy</a></li>
+<li><a href="https://github.com/dsyme">dsyme</a></li>
+<li><a href="https://github.com/pkese">pkese</a></li>
+<li><a href="https://github.com/JorgeVV">JorgeVV</a></li>
+<li><a href="https://github.com/Slesa">Slesa</a></li>
+<li><a href="https://github.com/alfonsogarciacaro">alfonsogarciacaro</a></li>
+</ol>
+<p>That's all for now. Till next time!</p>
+
+
+  
+  <div id="disqus_thread"></div>
+    <script>
+        var disqus_config = function () {
+            this.page.url = "http://theimowski.com/blog/2018/12-14-safe-template/index.html";
+            this.page.identifier = "2018/12-14-safe-template";
+        };
+        (function() {  // DON'T EDIT BELOW THIS LINE
+            var d = document, s = d.createElement('script');
+            
+            s.src = '//theimowski.disqus.com/embed.js';
+            
+            s.setAttribute('data-timestamp', +new Date());
+            (d.head || d.body).appendChild(s);
+        })();
+    </script>
+    <noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+</div>
+      </div>
+    </div>
+
+    <label for="sidebar-checkbox" class="sidebar-toggle"></label>
+
+    <script>
+      (function(document) {
+        var toggle = document.querySelector('.sidebar-toggle');
+        var sidebar = document.querySelector('#sidebar');
+        var checkbox = document.querySelector('#sidebar-checkbox');
+
+        document.addEventListener('click', function(e) {
+          var target = e.target;
+
+          if(!checkbox.checked ||
+             sidebar.contains(target) ||
+             (target === checkbox || target === toggle)) return;
+
+          checkbox.checked = false;
+        }, false);
+      })(document);
+    </script>
+  </body>
+</html>
